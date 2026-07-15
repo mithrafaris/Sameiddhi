@@ -16,9 +16,15 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getUser();
-    if (!user) {
+    const tokenData = await getUser();
+    if (!tokenData) {
       return NextResponse.json({ error: 'You must be logged in to review a product' }, { status: 401 });
+    }
+
+    await dbConnect();
+    const user = await import('@/lib/models/User').then(m => m.default).then(User => User.findById(tokenData.userId));
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     const { rating, comment } = await request.json();
@@ -38,7 +44,7 @@ export async function POST(
 
     // Check if already reviewed
     const alreadyReviewed = product.reviews.find(
-      (r: any) => r.user.toString() === user.id.toString()
+      (r: any) => r.user && r.user.toString() === user._id.toString()
     );
 
     if (alreadyReviewed) {
@@ -49,7 +55,7 @@ export async function POST(
       name: user.name,
       rating: Number(rating),
       comment,
-      user: user.id,
+      user: user._id,
     };
 
     product.reviews.push(review);
