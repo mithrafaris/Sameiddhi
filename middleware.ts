@@ -6,8 +6,8 @@ export function middleware(request: NextRequest) {
 
   // Protect Admin routes
   if (pathname.startsWith('/admin')) {
-    // Exclude admin login route from redirection loops
-    if (pathname === '/admin/login') {
+    // Exclude admin auth routes from redirection loops
+    if (pathname === '/admin/login' || pathname === '/admin/register') {
       if (token) {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));

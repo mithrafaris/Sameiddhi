@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Users, ShoppingBag, ShoppingCart, FileSpreadsheet, 
-  ShieldAlert, UserCheck, UserMinus, Plus, Trash2, Edit, ChevronRight, LogOut, CheckCircle, Package, Receipt 
+  ShieldAlert, UserCheck, UserMinus, Plus, Trash2, Edit, ChevronRight, LogOut, CheckCircle, Package, Receipt, Tag, Image as ImageIcon 
 } from 'lucide-react';
 
 interface UserData {
@@ -43,11 +43,32 @@ interface CategoryData {
   categoryName: string;
 }
 
+interface CouponData {
+  _id: string;
+  couponName: string;
+  couponValue: number;
+  expiryDate: string;
+  maxValue: number;
+  minValue: number;
+  isList: boolean;
+}
+
+interface BannerData {
+  _id: string;
+  bannerName: string;
+  image: string;
+  title: string;
+  subtitle: string;
+  isList: boolean;
+}
+
 interface AdminDashboardProps {
   initialUsers: UserData[];
   initialProducts: ProductData[];
   initialOrders: OrderData[];
   initialCategories: CategoryData[];
+  initialCoupons: CouponData[];
+  initialBanners: BannerData[];
 }
 
 export default function AdminDashboard({
@@ -55,11 +76,15 @@ export default function AdminDashboard({
   initialProducts,
   initialOrders,
   initialCategories,
+  initialCoupons = [],
+  initialBanners = [],
 }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'products' | 'orders' | 'reports'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'products' | 'orders' | 'reports' | 'coupons' | 'banners'>('dashboard');
   const [users, setUsers] = useState<UserData[]>(initialUsers);
   const [products, setProducts] = useState<ProductData[]>(initialProducts);
   const [orders, setOrders] = useState<OrderData[]>(initialOrders);
+  const [coupons, setCoupons] = useState<CouponData[]>(initialCoupons);
+  const [banners, setBanners] = useState<BannerData[]>(initialBanners);
   
   // Product Add Form State
   const [showAddForm, setShowAddForm] = useState(false);
@@ -203,6 +228,24 @@ export default function AdminDashboard({
             >
               <FileSpreadsheet className="h-4.5 w-4.5" />
               <span>Sales Reports</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('coupons')}
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold tracking-wide transition-all text-left cursor-pointer ${
+                activeTab === 'coupons' ? 'bg-violet-600 text-white' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              <Tag className="h-4.5 w-4.5" />
+              <span>Coupons</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('banners')}
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold tracking-wide transition-all text-left cursor-pointer ${
+                activeTab === 'banners' ? 'bg-violet-600 text-white' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              <ImageIcon className="h-4.5 w-4.5" />
+              <span>Banners</span>
             </button>
           </div>
         </div>
@@ -637,6 +680,95 @@ export default function AdminDashboard({
                     Download Excel Spreadsheet
                   </a>
                 </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* TAB 6: COUPONS */}
+          {activeTab === 'coupons' && (
+            <motion.div
+              key="coupons"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              className="space-y-8"
+            >
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight uppercase">Coupons</h1>
+                <p className="text-xs text-zinc-500 font-semibold mt-1">MANAGE DISCOUNT CODES AND PROMOTIONS</p>
+              </div>
+
+              <div className="glass-card rounded-3xl border border-zinc-800/80 bg-zinc-900/10 overflow-hidden">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-zinc-850 text-[10px] font-bold text-zinc-500 uppercase tracking-widest bg-zinc-950/20">
+                      <th className="px-6 py-4">Coupon Code</th>
+                      <th className="px-6 py-4">Discount (%)</th>
+                      <th className="px-6 py-4">Min Spend</th>
+                      <th className="px-6 py-4">Max Cap</th>
+                      <th className="px-6 py-4">Expires</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {coupons.length === 0 ? (
+                      <tr><td colSpan={5} className="text-center py-6 text-zinc-500 text-xs">No coupons found. API integration pending for Create.</td></tr>
+                    ) : coupons.map(c => (
+                      <tr key={c._id} className="border-b border-zinc-900 text-xs hover:bg-zinc-900/10 transition-colors">
+                        <td className="px-6 py-4 font-bold text-white uppercase">{c.couponName}</td>
+                        <td className="px-6 py-4 text-emerald-400 font-mono">{c.couponValue}%</td>
+                        <td className="px-6 py-4 text-zinc-300">₹{c.minValue}</td>
+                        <td className="px-6 py-4 text-zinc-300">₹{c.maxValue}</td>
+                        <td className="px-6 py-4 text-zinc-400">{c.expiryDate}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          )}
+
+          {/* TAB 7: BANNERS */}
+          {activeTab === 'banners' && (
+            <motion.div
+              key="banners"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              className="space-y-8"
+            >
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight uppercase">Banners</h1>
+                <p className="text-xs text-zinc-500 font-semibold mt-1">MANAGE HOMEPAGE CAROUSEL BANNERS</p>
+              </div>
+
+              <div className="glass-card rounded-3xl border border-zinc-800/80 bg-zinc-900/10 overflow-hidden">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-zinc-850 text-[10px] font-bold text-zinc-500 uppercase tracking-widest bg-zinc-950/20">
+                      <th className="px-6 py-4">Image</th>
+                      <th className="px-6 py-4">Banner Name</th>
+                      <th className="px-6 py-4">Title</th>
+                      <th className="px-6 py-4">Subtitle</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {banners.length === 0 ? (
+                      <tr><td colSpan={4} className="text-center py-6 text-zinc-500 text-xs">No banners found. API integration pending for Create.</td></tr>
+                    ) : banners.map(b => (
+                      <tr key={b._id} className="border-b border-zinc-900 text-xs hover:bg-zinc-900/10 transition-colors">
+                        <td className="px-6 py-4">
+                          <img
+                            src={b.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop'}
+                            alt="" className="h-8 w-16 object-cover rounded-lg border border-zinc-850"
+                          />
+                        </td>
+                        <td className="px-6 py-4 font-bold text-white uppercase">{b.bannerName}</td>
+                        <td className="px-6 py-4 text-zinc-300">{b.title}</td>
+                        <td className="px-6 py-4 text-zinc-400">{b.subtitle}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </motion.div>
           )}
