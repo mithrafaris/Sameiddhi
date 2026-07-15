@@ -33,6 +33,10 @@ const UserSchema = new Schema({
   wallet: { type: Number, default: 100 },
   address: {
     items: [UserAddressSchema]
+  },
+  wishlist: {
+    type: [{ type: Schema.Types.ObjectId, ref: 'Products' }],
+    default: []
   }
 });
 

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, User, Wallet, LogOut, ShieldAlert, ShoppingBag, Menu, X, Search } from 'lucide-react';
+import { ShoppingCart, User, Wallet, LogOut, ShieldAlert, ShoppingBag, Menu, X, Search, Heart } from 'lucide-react';
 
 interface UserSession {
   name: string;
@@ -118,6 +118,11 @@ export default function Navbar() {
                   )}
                 </Link>
 
+                {/* Wishlist Icon */}
+                <Link href="/wishlist" className="p-2 text-zinc-300 hover:text-white transition-colors">
+                  <Heart className="h-5 w-5" />
+                </Link>
+
                 {/* Profile Icon */}
                 <Link href="/profile" className="p-2 text-zinc-300 hover:text-white transition-colors">
                   <User className="h-5 w-5" />
@@ -209,6 +214,13 @@ export default function Navbar() {
                     className="text-sm font-medium text-zinc-300 hover:text-white"
                   >
                     My Profile
+                  </Link>
+                  <Link
+                    href="/wishlist"
+                    onClick={() => setIsOpen(false)}
+                    className="text-sm font-medium text-zinc-300 hover:text-white"
+                  >
+                    My Wishlist
                   </Link>
                   <Link
                     href="/wallet"

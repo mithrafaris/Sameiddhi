@@ -51,6 +51,49 @@ export default function HomeClient({
   const [products, setProducts] = useState<ProductType[]>(initialProducts);
   const [currentBanner, setCurrentBanner] = useState(0);
   const [addedToCart, setAddedToCart] = useState<Record<string, boolean>>({});
+  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
+
+  // Fetch wishlist on mount
+  useEffect(() => {
+    fetch('/api/wishlist')
+      .then((res) => {
+        if (res.ok) return res.json();
+        return { wishlist: [] };
+      })
+      .then((data) => {
+        if (data.wishlist) {
+          const ids = data.wishlist.map((item: any) => typeof item === 'string' ? item : item._id);
+          setWishlist(new Set(ids));
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  const handleToggleWishlist = async (productId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/wishlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId }),
+      });
+      if (res.ok) {
+        setWishlist((prev) => {
+          const newSet = new Set(prev);
+          if (newSet.has(productId)) {
+            newSet.delete(productId);
+          } else {
+            newSet.add(productId);
+          }
+          return newSet;
+        });
+      } else if (res.status === 401) {
+        window.location.href = '/login';
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   // Autoplay banners
   useEffect(() => {
@@ -238,6 +281,16 @@ export default function HomeClient({
                       {product.discount} OFF
                     </span>
                   )}
+                  <button
+                    onClick={(e) => handleToggleWishlist(product._id, e)}
+                    className={`absolute top-3.5 right-3.5 z-20 p-2 rounded-full transition-colors ${
+                      wishlist.has(product._id)
+                        ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
+                        : 'bg-zinc-900/80 text-zinc-400 hover:text-red-400 hover:bg-zinc-800'
+                    }`}
+                  >
+                    <Heart className={`h-4 w-4 ${wishlist.has(product._id) ? 'fill-current' : ''}`} />
+                  </button>
                   <img
                     src={product.images[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop'}
                     alt={product.productName}
