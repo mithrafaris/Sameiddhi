@@ -78,6 +78,19 @@ export default async function AdminPage() {
     isList: b.isList ?? true,
   }));
 
+  const reviews = rawProducts.flatMap((p: any) => 
+    (p.reviews || []).map((r: any) => ({
+      _id: r._id.toString(),
+      productId: p._id.toString(),
+      productName: p.productName,
+      userName: r.name,
+      userId: r.user?.toString(),
+      rating: r.rating,
+      comment: r.comment,
+      createdAt: r.createdAt ? r.createdAt.toISOString() : new Date().toISOString()
+    }))
+  );
+
   return (
     <AdminDashboard
       initialUsers={users}
@@ -86,6 +99,7 @@ export default async function AdminPage() {
       initialCategories={categories}
       initialCoupons={coupons}
       initialBanners={banners}
+      initialReviews={reviews}
     />
   );
 }

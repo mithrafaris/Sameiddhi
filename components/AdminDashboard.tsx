@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Users, ShoppingBag, ShoppingCart, FileSpreadsheet, 
-  ShieldAlert, UserCheck, UserMinus, Plus, Trash2, Edit, ChevronRight, LogOut, CheckCircle, Package, Receipt, Tag, Image as ImageIcon, FolderTree
+  ShieldAlert, UserCheck, UserMinus, Plus, Trash2, Edit, ChevronRight, LogOut, CheckCircle, Package, Receipt, Tag, Image as ImageIcon, FolderTree, MessageSquare, Star
 } from 'lucide-react';
 
 interface UserData {
@@ -64,6 +64,17 @@ interface BannerData {
   isList: boolean;
 }
 
+interface ReviewData {
+  _id: string;
+  productId: string;
+  productName: string;
+  userName: string;
+  userId: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
 interface AdminDashboardProps {
   initialUsers: UserData[];
   initialProducts: ProductData[];
@@ -71,6 +82,7 @@ interface AdminDashboardProps {
   initialCategories: CategoryData[];
   initialCoupons: CouponData[];
   initialBanners: BannerData[];
+  initialReviews?: ReviewData[];
 }
 
 export default function AdminDashboard({
@@ -80,14 +92,59 @@ export default function AdminDashboard({
   initialCategories,
   initialCoupons = [],
   initialBanners = [],
+  initialReviews = [],
 }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'products' | 'orders' | 'reports' | 'categories' | 'coupons' | 'banners'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'products' | 'orders' | 'reports' | 'categories' | 'coupons' | 'banners' | 'reviews'>('dashboard');
   const [categories, setCategories] = useState<CategoryData[]>(initialCategories);
   const [users, setUsers] = useState<UserData[]>(initialUsers);
   const [products, setProducts] = useState<ProductData[]>(initialProducts);
   const [orders, setOrders] = useState<OrderData[]>(initialOrders);
   const [coupons, setCoupons] = useState<CouponData[]>(initialCoupons);
   const [banners, setBanners] = useState<BannerData[]>(initialBanners);
+  const [reviews, setReviews] = useState<ReviewData[]>(initialReviews);
+  
+  // Review Form State
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [editReviewData, setEditReviewData] = useState<ReviewData | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+
+  const handleSaveReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editReviewData) return;
+    try {
+      const res = await fetch('/api/admin/reviews', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: editReviewData.productId,
+          reviewId: editReviewData._id,
+          rating: reviewRating,
+          comment: reviewComment
+        }),
+      });
+
+      if (res.ok) {
+        setReviews(reviews.map(r => r._id === editReviewData._id ? { ...r, rating: reviewRating, comment: reviewComment } : r));
+        setShowReviewForm(false);
+        setEditReviewData(null);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteReview = async (productId: string, reviewId: string) => {
+    if (!confirm('Are you sure you want to delete this review?')) return;
+    try {
+      const res = await fetch(`/api/admin/reviews?productId=${productId}&reviewId=${reviewId}`, { method: 'DELETE' });
+      if (res.ok) {
+        setReviews(reviews.filter(r => r._id !== reviewId));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
   
   // Product Add Form State
   const [showAddForm, setShowAddForm] = useState(false);
@@ -457,6 +514,15 @@ export default function AdminDashboard({
             >
               <ImageIcon className="h-4.5 w-4.5" />
               <span>Banners</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('reviews')}
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold tracking-wide transition-all text-left cursor-pointer ${
+                activeTab === 'reviews' ? 'bg-violet-600 text-white' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              <MessageSquare className="h-4.5 w-4.5" />
+              <span>Reviews</span>
             </button>
           </div>
         </div>
@@ -1400,6 +1466,122 @@ export default function AdminDashboard({
                 </table>
               </div>
             </motion.div>
+          )}
+          
+          {/* Reviews Tab */}
+          {activeTab === 'reviews' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h3 className="text-xl font-bold text-white uppercase tracking-wide">Customer Reviews</h3>
+              </div>
+              <div className="glass-card rounded-2xl border border-zinc-800/80 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm text-zinc-400">
+                    <thead className="bg-zinc-900/50 text-xs uppercase text-zinc-300 border-b border-zinc-800">
+                      <tr>
+                        <th className="px-6 py-4 font-bold">Product</th>
+                        <th className="px-6 py-4 font-bold">User</th>
+                        <th className="px-6 py-4 font-bold">Rating</th>
+                        <th className="px-6 py-4 font-bold">Comment</th>
+                        <th className="px-6 py-4 font-bold">Date</th>
+                        <th className="px-6 py-4 font-bold text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-800/50">
+                      {reviews.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="px-6 py-8 text-center text-zinc-500 font-medium">No reviews found</td>
+                        </tr>
+                      ) : (
+                        reviews.map((r) => (
+                          <tr key={r._id} className="hover:bg-zinc-900/30 transition-colors">
+                            <td className="px-6 py-4 font-bold text-white truncate max-w-[150px]">{r.productName}</td>
+                            <td className="px-6 py-4">{r.userName}</td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-1">
+                                <Star className="h-4 w-4 fill-violet-400 text-violet-400" />
+                                <span>{r.rating}</span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-zinc-400 truncate max-w-[200px]">{r.comment}</td>
+                            <td className="px-6 py-4">{new Date(r.createdAt).toLocaleDateString()}</td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center justify-end gap-3">
+                                <button
+                                  onClick={() => {
+                                    setEditReviewData(r);
+                                    setReviewRating(r.rating);
+                                    setReviewComment(r.comment);
+                                    setShowReviewForm(true);
+                                  }}
+                                  className="text-violet-400 hover:text-violet-300 transition-colors p-1"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteReview(r.productId, r._id)}
+                                  className="text-red-400 hover:text-red-300 transition-colors p-1"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Edit Review Modal */}
+          {showReviewForm && editReviewData && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm">
+              <div className="glass-card w-full max-w-lg rounded-3xl border border-zinc-800 p-6 md:p-8">
+                <h3 className="text-xl font-bold text-white uppercase tracking-wide mb-6">Edit Review</h3>
+                <form onSubmit={handleSaveReview} className="space-y-4">
+                  <div>
+                    <label className="mb-2 block text-xs font-bold uppercase text-zinc-400">Rating (1-5)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="5"
+                      required
+                      value={reviewRating}
+                      onChange={(e) => setReviewRating(Number(e.target.value))}
+                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900/50 p-3 text-sm text-zinc-200 focus:border-violet-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-xs font-bold uppercase text-zinc-400">Comment</label>
+                    <textarea
+                      required
+                      rows={4}
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900/50 p-3 text-sm text-zinc-200 focus:border-violet-500 focus:outline-none"
+                    />
+                  </div>
+                  <div className="flex gap-4 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowReviewForm(false)}
+                      className="flex-1 rounded-xl bg-zinc-800 py-3 text-sm font-bold text-zinc-300 hover:bg-zinc-700 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 rounded-xl bg-violet-600 py-3 text-sm font-bold text-white hover:bg-violet-500 transition-colors"
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
           )}
         </AnimatePresence>
       </div>
