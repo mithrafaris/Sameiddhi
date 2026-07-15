@@ -4,11 +4,13 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Mail, Lock, ShieldAlert } from 'lucide-react';
+import { Mail, Lock, ShieldAlert, KeyRound, User } from 'lucide-react';
 
-export default function AdminLoginPage() {
+export default function AdminRegisterPage() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [secretKey, setSecretKey] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -19,23 +21,18 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch('/api/admin/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ name, email, password, secretKey }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'Authentication failed');
+        throw new Error(data.error || 'Registration failed');
       }
 
-      if (!data.user.isadmin) {
-        throw new Error('Access denied. Administrator privileges required.');
-      }
-
-      router.push('/admin');
-      router.refresh();
+      router.push('/admin/login');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -45,7 +42,6 @@ export default function AdminLoginPage() {
 
   return (
     <div className="flex-1 flex items-center justify-center min-h-[80vh] px-4 py-12 relative overflow-hidden bg-zinc-950">
-      {/* Background ambient light */}
       <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-violet-600/10 blur-[100px] rounded-full pointer-events-none" />
 
       <motion.div
@@ -57,8 +53,8 @@ export default function AdminLoginPage() {
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20 mb-3">
             <ShieldAlert className="h-6 w-6 text-white" />
           </div>
-          <h2 className="text-2xl font-black text-white uppercase tracking-wider">Admin Control</h2>
-          <p className="text-xs text-zinc-500 font-semibold mt-1">LOG IN TO THE PREETHIKA BACKEND PANEL</p>
+          <h2 className="text-2xl font-black text-white uppercase tracking-wider">Admin Setup</h2>
+          <p className="text-xs text-zinc-500 font-semibold mt-1">CREATE A NEW ADMINISTRATOR ACCOUNT</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -67,6 +63,21 @@ export default function AdminLoginPage() {
               {error}
             </div>
           )}
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Full Name</label>
+            <div className="relative">
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Admin Name"
+                className="w-full rounded-xl bg-zinc-950/60 border border-zinc-800 px-4 py-2.5 pl-10 text-sm text-zinc-200 focus:outline-none focus:border-violet-500 transition-colors"
+              />
+              <User className="absolute left-3.5 top-3 h-4.5 w-4.5 text-zinc-500" />
+            </div>
+          </div>
 
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Admin Email</label>
@@ -84,12 +95,7 @@ export default function AdminLoginPage() {
           </div>
 
           <div className="space-y-1.5">
-            <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Admin Password</label>
-              <Link href="/forgot-password" className="text-xs font-semibold text-violet-400 hover:text-violet-300">
-                Forgot Password?
-              </Link>
-            </div>
+            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Password</label>
             <div className="relative">
               <input
                 type="password"
@@ -103,20 +109,35 @@ export default function AdminLoginPage() {
             </div>
           </div>
 
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider text-violet-400">Secret Admin Key</label>
+            <div className="relative">
+              <input
+                type="password"
+                required
+                value={secretKey}
+                onChange={(e) => setSecretKey(e.target.value)}
+                placeholder="Enter Authorization Key"
+                className="w-full rounded-xl bg-zinc-950/60 border border-violet-500/30 px-4 py-2.5 pl-10 text-sm text-zinc-200 focus:outline-none focus:border-violet-500 transition-colors"
+              />
+              <KeyRound className="absolute left-3.5 top-3 h-4.5 w-4.5 text-violet-400/50" />
+            </div>
+          </div>
+
           <motion.button
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-violet-600 hover:bg-violet-500 py-3 text-sm font-semibold text-white transition-colors shadow-lg shadow-violet-500/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full rounded-xl bg-violet-600 hover:bg-violet-500 py-3 text-sm font-semibold text-white transition-colors shadow-lg shadow-violet-500/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer mt-4"
           >
-            {loading ? 'Authorizing Access...' : 'Authenticate'}
+            {loading ? 'Creating Account...' : 'Register Admin'}
           </motion.button>
         </form>
 
         <p className="mt-8 text-center text-xs text-zinc-500 font-semibold uppercase tracking-wider">
-          Don't have an admin account?{' '}
-          <Link href="/admin/register" className="text-violet-400 hover:text-violet-300">
-            Sign Up
+          Already have access?{' '}
+          <Link href="/admin/login" className="text-violet-400 hover:text-violet-300">
+            Sign In
           </Link>
         </p>
       </motion.div>
