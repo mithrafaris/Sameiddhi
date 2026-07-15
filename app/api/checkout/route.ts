@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await request.json();
-    const { addressId, paymentMethod, couponName } = body;
+    const { addressId, paymentMethod, couponName, isGreenShipping } = body;
 
     if (!addressId || !paymentMethod) {
       return NextResponse.json({ error: 'Address and payment method are required' }, { status: 400 });
@@ -78,7 +78,8 @@ export async function POST(request: Request) {
       }
     }
 
-    const finalAmount = Math.max(0, subtotal - discount);
+    const shippingFee = isGreenShipping ? 50 : 0;
+    const finalAmount = Math.max(0, subtotal - discount) + shippingFee;
 
     // Wallet transaction check
     if (paymentMethod === 'wallet') {
@@ -87,6 +88,10 @@ export async function POST(request: Request) {
       }
       user.wallet -= finalAmount;
     }
+
+    // Preethika Rewards: 2% Cashback on every order
+    const cashback = Math.floor(finalAmount * 0.02);
+    user.wallet = (user.wallet || 0) + cashback;
 
     // Deduct stock from products
     for (const item of user.cart) {

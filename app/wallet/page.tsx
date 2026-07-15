@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Wallet, Plus, ArrowLeft, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Wallet, Plus, ArrowLeft, ArrowUpRight, ArrowDownLeft, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface Transaction {
@@ -45,6 +45,18 @@ export default function WalletPage() {
 
           // Extract wallet orders
           ordersData.orders.forEach((order: any) => {
+            // Add cashback transaction
+            const cashbackAmount = Math.floor(order.totalAmount * 0.02);
+            if (cashbackAmount > 0) {
+              txs.push({
+                id: `TX-${order.orderId}-CASHBACK`,
+                type: 'credit',
+                amount: cashbackAmount,
+                date: new Date(order.purchaseDate).toLocaleDateString('en-IN'),
+                description: `Preethika Rewards (Order #${order.orderId})`,
+              });
+            }
+
             if (order.paymentMethod === 'wallet') {
               txs.push({
                 id: `TX-${order.orderId}`,
@@ -135,8 +147,12 @@ export default function WalletPage() {
         <button onClick={() => router.push('/')} className="p-1.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-white transition-colors cursor-pointer">
           <ArrowLeft className="h-4 w-4" />
         </button>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight uppercase">
-          My Wallet
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight uppercase flex items-center gap-2">
+          <span>My Wallet</span>
+          <span className="bg-violet-900/40 border border-violet-500/50 text-violet-400 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+            <Sparkles className="h-3 w-3" />
+            Preethika Rewards
+          </span>
         </h1>
       </div>
 
@@ -149,6 +165,9 @@ export default function WalletPage() {
               <span className="text-xs font-bold uppercase tracking-wider">Available Balance</span>
             </div>
             <div className="text-3xl font-black text-white">₹{balance.toLocaleString('en-IN')}</div>
+            <p className="text-[10px] text-zinc-400 font-semibold leading-relaxed">
+              Earn <span className="text-violet-400">2% cashback</span> on every purchase through Preethika Rewards. Use your balance on future orders seamlessly!
+            </p>
 
             {/* Quick add funds */}
             <form onSubmit={handleAddFunds} className="space-y-3 pt-4 border-t border-zinc-950">

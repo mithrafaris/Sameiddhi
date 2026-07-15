@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Wallet, CreditCard, Tag, Plus, CheckCircle, ArrowLeft, ShoppingBag } from 'lucide-react';
+import { MapPin, Wallet, CreditCard, Tag, Plus, CheckCircle, ArrowLeft, Leaf, Sparkles } from 'lucide-react';
 
 interface Address {
   _id: string;
@@ -47,6 +47,9 @@ export default function CheckoutPage() {
   const [discount, setDiscount] = useState(0);
   const [couponError, setCouponError] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState('');
+
+  // Green Shipping
+  const [isGreenShipping, setIsGreenShipping] = useState(false);
 
   // Statuses
   const [loading, setLoading] = useState(true);
@@ -176,6 +179,7 @@ export default function CheckoutPage() {
           addressId: selectedAddress,
           paymentMethod,
           couponName: appliedCoupon,
+          isGreenShipping,
         }),
       });
 
@@ -195,7 +199,9 @@ export default function CheckoutPage() {
   };
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const total = Math.max(0, subtotal - discount);
+  const shippingFee = isGreenShipping ? 50 : 0;
+  const total = Math.max(0, subtotal - discount) + shippingFee;
+  const estimatedCashback = Math.floor(total * 0.02);
 
   if (loading) {
     return (
@@ -457,6 +463,29 @@ export default function CheckoutPage() {
               </button>
             </div>
           </div>
+
+          {/* Green Shipping Toggle */}
+          <div className="glass-card p-6 rounded-3xl border border-zinc-800/80 bg-zinc-900/10 space-y-4">
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <Leaf className="h-4.5 w-4.5 text-emerald-500" />
+              <span>Sustainability</span>
+            </h3>
+            <div className="flex items-center justify-between p-4 rounded-2xl border border-zinc-800 bg-zinc-950/20">
+              <div className="space-y-1">
+                <span className="block text-xs font-bold text-emerald-400 uppercase">Carbon-Neutral Delivery</span>
+                <span className="text-[10px] text-zinc-400 block">Offset the carbon footprint of your shipment for just ₹50.</span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={isGreenShipping}
+                  onChange={() => setIsGreenShipping(!isGreenShipping)}
+                />
+                <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+              </label>
+            </div>
+          </div>
         </div>
 
         {/* Right Side: Order Summary */}
@@ -525,11 +554,17 @@ export default function CheckoutPage() {
               )}
               <div className="flex justify-between text-xs text-zinc-400 font-semibold">
                 <span>Shipping</span>
-                <span className="text-emerald-500">FREE</span>
+                <span className={isGreenShipping ? "text-emerald-400" : "text-emerald-500"}>
+                  {isGreenShipping ? "+₹50" : "FREE"}
+                </span>
               </div>
               <div className="border-t border-zinc-900 pt-4 flex justify-between text-base font-extrabold text-white">
                 <span>Total</span>
                 <span>₹{total.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex items-center gap-2 pt-2 text-xs font-semibold text-violet-400 bg-violet-950/20 px-3 py-2 rounded-lg border border-violet-900/30">
+                <Sparkles className="h-4 w-4" />
+                <span>Earn ₹{estimatedCashback} Preethika Rewards cashback!</span>
               </div>
             </div>
 
