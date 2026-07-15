@@ -71,6 +71,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           categoryName: p.category.categoryName,
         }
       : undefined,
+    rating: p.rating || 0,
   }));
 
   return (

@@ -40,6 +40,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
           categoryName: rawProduct.category.categoryName,
         }
       : undefined,
+    rating: rawProduct.rating || 0,
+    numReviews: rawProduct.numReviews || 0,
+    reviews: (rawProduct.reviews || []).map((r: any) => ({
+      _id: r._id.toString(),
+      name: r.name,
+      rating: r.rating,
+      comment: r.comment,
+      createdAt: r.createdAt ? r.createdAt.toISOString() : new Date().toISOString(),
+    })),
   };
 
   return <ProductDetailsClient product={product} />;

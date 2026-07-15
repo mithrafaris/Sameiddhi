@@ -23,6 +23,7 @@ interface ProductType {
     _id: string;
     categoryName: string;
   };
+  rating?: number;
 }
 
 interface ProductsClientProps {
@@ -195,7 +196,7 @@ export default function ProductsClient({
                           <span>{product.category?.categoryName || 'General'}</span>
                           <div className="flex items-center text-violet-400 gap-0.5">
                             <Star className="h-3 w-3 fill-violet-400" />
-                            <span>4.8</span>
+                            <span>{product.rating ? product.rating.toFixed(1) : '0.0'}</span>
                           </div>
                         </div>
                         <h4 className="text-base font-bold text-white truncate uppercase tracking-wide group-hover:text-violet-400 transition-colors">

@@ -17,6 +17,15 @@ interface ProductDetailsClientProps {
     category?: {
       categoryName: string;
     };
+    rating?: number;
+    numReviews?: number;
+    reviews?: {
+      _id: string;
+      name: string;
+      rating: number;
+      comment: string;
+      createdAt: string;
+    }[];
   };
 }
 
@@ -24,6 +33,11 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState('');
+  const [reviewSuccess, setReviewSuccess] = useState('');
 
   const handleAddToCart = async () => {
     try {
@@ -48,6 +62,35 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
   const images = product.images.length > 0 ? product.images : [
     'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop'
   ];
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setReviewSubmitting(true);
+    setReviewError('');
+    setReviewSuccess('');
+
+    try {
+      const res = await fetch(`/api/products/${product._id}/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating: reviewRating, comment: reviewComment }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setReviewError(data.error || 'Failed to submit review');
+      } else {
+        setReviewSuccess('Review submitted successfully! Refreshing...');
+        setReviewComment('');
+        setReviewRating(5);
+        setTimeout(() => window.location.reload(), 2000);
+      }
+    } catch (err: any) {
+      setReviewError(err.message || 'Something went wrong');
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 flex flex-col justify-center">
@@ -96,8 +139,8 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
             <div className="flex items-center gap-4 text-sm mt-2">
               <div className="flex items-center text-violet-400 gap-1 font-bold">
                 <Star className="h-4 w-4 fill-violet-400" />
-                <span>4.8</span>
-                <span className="text-zinc-500 font-normal">(128 customer reviews)</span>
+                <span>{product.rating ? product.rating.toFixed(1) : '0.0'}</span>
+                <span className="text-zinc-500 font-normal">({product.numReviews || 0} customer reviews)</span>
               </div>
               <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
                 product.stock > 0 ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-900/60' : 'bg-red-950/40 text-red-400 border border-red-900/60'
@@ -176,6 +219,79 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
               <RefreshCw className="h-5 w-5 text-violet-400 shrink-0" />
               <span className="text-xs font-semibold">7 Days Easy Return</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="mt-20 border-t border-zinc-900 pt-12 max-w-4xl">
+        <h2 className="text-2xl font-extrabold text-white uppercase tracking-wider mb-8">Customer Reviews</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          {/* Review List */}
+          <div className="space-y-6">
+            {(!product.reviews || product.reviews.length === 0) ? (
+              <p className="text-zinc-500 text-sm">No reviews yet. Be the first to review this product!</p>
+            ) : (
+              product.reviews.map((review) => (
+                <div key={review._id} className="bg-zinc-900/30 p-5 rounded-2xl border border-zinc-800">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-bold text-white">{review.name}</span>
+                    <span className="text-xs text-zinc-500">{new Date(review.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-1 mb-3">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star key={star} className={`h-3 w-3 ${star <= review.rating ? 'fill-violet-400 text-violet-400' : 'text-zinc-700'}`} />
+                    ))}
+                  </div>
+                  <p className="text-sm text-zinc-400 leading-relaxed">{review.comment}</p>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Write a Review Form */}
+          <div className="glass-card p-6 rounded-3xl border border-zinc-800/80 h-fit">
+            <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wide">Write a Review</h3>
+            <form onSubmit={handleSubmitReview} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-400 uppercase">Rating</label>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewRating(star)}
+                      className="cursor-pointer transition-transform hover:scale-110"
+                    >
+                      <Star className={`h-6 w-6 ${star <= reviewRating ? 'fill-violet-500 text-violet-500' : 'text-zinc-700'}`} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-zinc-400 uppercase">Your Review</label>
+                <textarea
+                  required
+                  rows={4}
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="What did you like or dislike?"
+                  className="w-full rounded-xl bg-zinc-950 border border-zinc-800 p-3 text-sm text-zinc-200 focus:outline-none focus:border-violet-500 transition-colors"
+                />
+              </div>
+              
+              {reviewError && <p className="text-xs font-bold text-red-400">{reviewError}</p>}
+              {reviewSuccess && <p className="text-xs font-bold text-emerald-400">{reviewSuccess}</p>}
+
+              <button
+                type="submit"
+                disabled={reviewSubmitting}
+                className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-sm font-bold text-white transition-colors disabled:opacity-50"
+              >
+                {reviewSubmitting ? 'Submitting...' : 'Submit Review'}
+              </button>
+            </form>
           </div>
         </div>
       </div>

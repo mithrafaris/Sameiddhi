@@ -46,6 +46,7 @@ export default async function HomePage() {
           categoryName: p.category.categoryName,
         }
       : undefined,
+    rating: p.rating || 0,
   }));
 
   return (
