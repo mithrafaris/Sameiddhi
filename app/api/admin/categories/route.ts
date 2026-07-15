@@ -24,12 +24,19 @@ export async function POST(request: Request) {
     await dbConnect();
     const data = await request.json();
 
-    const existing = await Category.findOne({ categoryName: data.categoryName });
+    const { categoryName, description, image } = data;
+
+    const existing = await Category.findOne({ categoryName });
     if (existing) {
       return NextResponse.json({ error: 'Category already exists' }, { status: 400 });
     }
 
-    const newCategory = new Category({ categoryName: data.categoryName, isList: true });
+    const newCategory = new Category({ 
+      categoryName, 
+      description: description || 'No description provided.',
+      image: image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop',
+      isList: true 
+    });
     await newCategory.save();
     return NextResponse.json(newCategory, { status: 201 });
   } catch (error: any) {
@@ -43,7 +50,7 @@ export async function PUT(request: Request) {
 
   try {
     await dbConnect();
-    const { _id, categoryName, isList } = await request.json();
+    const { _id, categoryName, description, image, isList } = await request.json();
 
     if (categoryName) {
       const existing = await Category.findOne({ categoryName, _id: { $ne: _id } });
@@ -52,7 +59,12 @@ export async function PUT(request: Request) {
       }
     }
 
-    const updated = await Category.findByIdAndUpdate(_id, { categoryName, isList }, { new: true });
+    const updated = await Category.findByIdAndUpdate(_id, { 
+      categoryName, 
+      description,
+      image,
+      isList 
+    }, { new: true });
     return NextResponse.json(updated);
   } catch (error: any) {
     return NextResponse.json({ error: 'Failed to update category' }, { status: 500 });

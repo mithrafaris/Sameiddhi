@@ -41,6 +41,8 @@ interface OrderData {
 interface CategoryData {
   _id: string;
   categoryName: string;
+  description?: string;
+  image?: string;
 }
 
 interface CouponData {
@@ -101,14 +103,23 @@ export default function AdminDashboard({
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editCategoryId, setEditCategoryId] = useState<string | null>(null);
   const [catName, setCatName] = useState('');
+  const [catDesc, setCatDesc] = useState('');
+  const [catImg, setCatImg] = useState('');
 
   const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const method = editCategoryId ? 'PUT' : 'POST';
+      const bodyData = { 
+        categoryName: catName, 
+        description: catDesc, 
+        image: catImg, 
+        isList: true 
+      };
+      
       const body = editCategoryId 
-        ? JSON.stringify({ _id: editCategoryId, categoryName: catName, isList: true })
-        : JSON.stringify({ categoryName: catName });
+        ? JSON.stringify({ _id: editCategoryId, ...bodyData })
+        : JSON.stringify(bodyData);
         
       const res = await fetch('/api/admin/categories', {
         method,
@@ -125,6 +136,8 @@ export default function AdminDashboard({
         }
         setShowCategoryForm(false);
         setCatName('');
+        setCatDesc('');
+        setCatImg('');
         setEditCategoryId(null);
       }
     } catch (err) {
@@ -939,6 +952,8 @@ export default function AdminDashboard({
                   onClick={() => {
                     setEditCategoryId(null);
                     setCatName('');
+                    setCatDesc('');
+                    setCatImg('');
                     setShowCategoryForm(true);
                   }}
                   className="flex items-center gap-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 px-4 py-2 text-xs font-bold text-white transition-colors cursor-pointer"
@@ -966,13 +981,32 @@ export default function AdminDashboard({
                         <button type="button" onClick={() => setShowCategoryForm(false)} className="text-zinc-500 hover:text-white">✕</button>
                       </div>
 
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-zinc-400 uppercase">Category Name</label>
-                        <input
-                          type="text" required value={catName} onChange={(e) => setCatName(e.target.value)}
-                          placeholder="e.g. Electronics"
-                          className="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs text-zinc-200 focus:outline-none"
-                        />
+                      <div className="space-y-3">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-zinc-400 uppercase">Category Name</label>
+                          <input
+                            type="text" required value={catName} onChange={(e) => setCatName(e.target.value)}
+                            placeholder="e.g. Electronics"
+                            className="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs text-zinc-200 focus:outline-none"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-zinc-400 uppercase">Description</label>
+                          <textarea
+                            required value={catDesc} onChange={(e) => setCatDesc(e.target.value)}
+                            placeholder="e.g. All electronic gadgets..."
+                            className="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs text-zinc-200 focus:outline-none"
+                            rows={2}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-zinc-400 uppercase">Image URL</label>
+                          <input
+                            type="text" required value={catImg} onChange={(e) => setCatImg(e.target.value)}
+                            placeholder="https://images.unsplash.com/..."
+                            className="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs text-zinc-200 focus:outline-none"
+                          />
+                        </div>
                       </div>
 
                       <div className="flex gap-4 justify-end pt-2">
@@ -999,22 +1033,33 @@ export default function AdminDashboard({
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-zinc-850 text-[10px] font-bold text-zinc-500 uppercase tracking-widest bg-zinc-950/20">
+                      <th className="px-6 py-4">Image</th>
                       <th className="px-6 py-4">Category Name</th>
+                      <th className="px-6 py-4">Description</th>
                       <th className="px-6 py-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {categories.length === 0 ? (
-                      <tr><td colSpan={2} className="text-center py-6 text-zinc-500 text-xs">No categories found.</td></tr>
+                      <tr><td colSpan={4} className="text-center py-6 text-zinc-500 text-xs">No categories found.</td></tr>
                     ) : categories.map(c => (
                       <tr key={c._id} className="border-b border-zinc-900 text-xs hover:bg-zinc-900/10 transition-colors">
+                        <td className="px-6 py-4">
+                          <img
+                            src={c.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop'}
+                            alt="" className="h-8 w-8 object-cover rounded-lg border border-zinc-850"
+                          />
+                        </td>
                         <td className="px-6 py-4 font-bold text-white uppercase">{c.categoryName}</td>
+                        <td className="px-6 py-4 text-zinc-400 max-w-[200px] truncate" title={c.description}>{c.description || 'No description'}</td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2">
                             <button
                               onClick={() => {
                                 setEditCategoryId(c._id);
                                 setCatName(c.categoryName);
+                                setCatDesc(c.description || '');
+                                setCatImg(c.image || '');
                                 setShowCategoryForm(true);
                               }}
                               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-800"
