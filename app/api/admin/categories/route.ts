@@ -58,3 +58,25 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: 'Failed to update category' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  const isAdmin = await checkAdmin(request);
+  if (!isAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  try {
+    await dbConnect();
+    const url = new URL(request.url);
+    const id = url.searchParams.get('id');
+
+    if (!id) return NextResponse.json({ error: 'Missing category ID' }, { status: 400 });
+
+    const deleted = await Category.findByIdAndDelete(id);
+    if (!deleted) {
+      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, message: 'Category deleted successfully' });
+  } catch (error: any) {
+    return NextResponse.json({ error: 'Failed to delete category' }, { status: 500 });
+  }
+}

@@ -95,6 +95,7 @@ export default function AdminDashboard({
   const [prodDesc, setProdDesc] = useState('');
   const [prodImg, setProdImg] = useState('');
   const [prodCat, setProdCat] = useState(initialCategories[0]?._id || '');
+  const [editProductId, setEditProductId] = useState<string | null>(null);
 
   // Category Add/Edit Form State
   const [showCategoryForm, setShowCategoryForm] = useState(false);
@@ -125,6 +126,18 @@ export default function AdminDashboard({
         setShowCategoryForm(false);
         setCatName('');
         setEditCategoryId(null);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this category?')) return;
+    try {
+      const res = await fetch(`/api/admin/categories?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setCategories(categories.filter(c => c._id !== id));
       }
     } catch (err) {
       console.error(err);
@@ -248,33 +261,53 @@ export default function AdminDashboard({
     }
   };
 
-  // Add Product
-  const handleAddProduct = async (e: React.FormEvent) => {
+  // Add/Edit Product
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const method = editProductId ? 'PUT' : 'POST';
+      const bodyData = {
+        productName: prodName,
+        price: Number(prodPrice),
+        stock: Number(prodStock),
+        description: prodDesc,
+        images: [prodImg || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop'],
+        category: prodCat,
+      };
+      const body = editProductId ? JSON.stringify({ _id: editProductId, ...bodyData }) : JSON.stringify(bodyData);
+
       const res = await fetch('/api/admin/products', {
-        method: 'POST',
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          productName: prodName,
-          price: Number(prodPrice),
-          stock: Number(prodStock),
-          description: prodDesc,
-          images: [prodImg || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop'],
-          category: prodCat,
-        }),
+        body,
       });
 
       if (res.ok) {
         const data = await res.json();
-        setProducts([data.product, ...products]);
+        if (editProductId) {
+          setProducts(products.map(p => p._id === editProductId ? data.product : p));
+        } else {
+          setProducts([data.product, ...products]);
+        }
         setShowAddForm(false);
-        // Clear
+        setEditProductId(null);
         setProdName('');
         setProdPrice('');
         setProdStock('');
         setProdDesc('');
         setProdImg('');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+    try {
+      const res = await fetch(`/api/admin/products?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setProducts(products.filter(p => p._id !== id));
       }
     } catch (err) {
       console.error(err);
@@ -307,6 +340,25 @@ export default function AdminDashboard({
   const totalOrdersCount = orders.length;
   const activeCustomers = users.filter(u => !u.isBlock).length;
   const inStockCount = products.reduce((acc, curr) => acc + curr.stock, 0);
+
+  // Dynamic Sales Chart Calculation (simulating 5 recent periods based on actual orders)
+  const calculateDynamicChart = () => {
+    const validOrders = orders.filter(o => o.status !== 'cancelled');
+    if (validOrders.length === 0) return [10, 10, 10, 10, 10]; // Fallback if no valid orders
+    
+    // Group orders into 5 arbitrary segments to show a dynamic chart based on order amounts
+    const segments = [0, 0, 0, 0, 0];
+    validOrders.forEach((o, i) => {
+      const segmentIndex = i % 5;
+      segments[segmentIndex] += o.totalAmount;
+    });
+    
+    const maxSegment = Math.max(...segments) || 1;
+    // Calculate heights relative to the max segment, minimum 10%
+    return segments.map(val => Math.max(10, Math.round((val / maxSegment) * 100)));
+  };
+  
+  const chartHeights = calculateDynamicChart();
 
   return (
     <div className="flex h-screen bg-zinc-950 text-zinc-100 overflow-hidden font-sans">
@@ -460,8 +512,8 @@ export default function AdminDashboard({
                   Sales Analysis (Visual Representation)
                 </h3>
                 <div className="h-64 flex items-end justify-between gap-4 pt-10 px-4">
-                  {/* Generate 5 styled bars representing categories or orders */}
-                  {[65, 80, 45, 95, 75].map((val, idx) => (
+                  {/* Generate 5 styled bars dynamically based on actual order data */}
+                  {chartHeights.map((val, idx) => (
                     <div key={idx} className="flex-1 flex flex-col items-center gap-3 h-full justify-end">
                       <motion.div
                         initial={{ height: 0 }}
@@ -469,7 +521,7 @@ export default function AdminDashboard({
                         transition={{ duration: 1, ease: 'easeOut', delay: idx * 0.1 }}
                         className="w-full rounded-t-xl bg-gradient-to-t from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/15"
                       />
-                      <span className="text-[10px] font-bold text-zinc-500 uppercase">Week {idx + 1}</span>
+                      <span className="text-[10px] font-bold text-zinc-500 uppercase">Part {idx + 1}</span>
                     </div>
                   ))}
                 </div>
@@ -560,7 +612,16 @@ export default function AdminDashboard({
                   <p className="text-xs text-zinc-500 font-semibold mt-1">MANAGE STORE ITEM DEFINITIONS AND STOCKS</p>
                 </div>
                 <button
-                  onClick={() => setShowAddForm(true)}
+                  onClick={() => {
+                    setEditProductId(null);
+                    setProdName('');
+                    setProdPrice('');
+                    setProdStock('');
+                    setProdDesc('');
+                    setProdImg('');
+                    setProdCat(categories[0]?._id || '');
+                    setShowAddForm(true);
+                  }}
                   className="flex items-center gap-1.5 rounded-xl bg-violet-600 hover:bg-violet-500 px-4 py-2 text-xs font-bold text-white transition-colors cursor-pointer"
                 >
                   <Plus className="h-4 w-4" />
@@ -576,11 +637,13 @@ export default function AdminDashboard({
                       initial={{ scale: 0.9, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0.9, opacity: 0 }}
-                      onSubmit={handleAddProduct}
+                      onSubmit={handleSaveProduct}
                       className="glass-card max-w-md w-full p-6 rounded-3xl border border-zinc-800 space-y-4"
                     >
                       <div className="pb-2 border-b border-zinc-850 flex justify-between items-center">
-                        <h4 className="text-sm font-bold text-white uppercase tracking-wider">New Product Item</h4>
+                        <h4 className="text-sm font-bold text-white uppercase tracking-wider">
+                          {editProductId ? 'Edit Product Item' : 'New Product Item'}
+                        </h4>
                         <button type="button" onClick={() => setShowAddForm(false)} className="text-zinc-500 hover:text-white">✕</button>
                       </div>
 
@@ -600,7 +663,7 @@ export default function AdminDashboard({
                               value={prodCat} onChange={(e) => setProdCat(e.target.value)}
                               className="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs text-zinc-200 focus:outline-none"
                             >
-                              {initialCategories.map(c => (
+                              {categories.map(c => (
                                 <option key={c._id} value={c._id}>{c.categoryName}</option>
                               ))}
                             </select>
@@ -656,7 +719,7 @@ export default function AdminDashboard({
                           type="submit"
                           className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-xs font-semibold text-white"
                         >
-                          Add Product
+                          {editProductId ? 'Update' : 'Add Product'}
                         </button>
                       </div>
                     </motion.form>
@@ -675,6 +738,7 @@ export default function AdminDashboard({
                       <th className="px-6 py-4">Price</th>
                       <th className="px-6 py-4">Stock</th>
                       <th className="px-6 py-4">Status</th>
+                      <th className="px-6 py-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -698,6 +762,33 @@ export default function AdminDashboard({
                           }`}>
                             {p.stock > 0 ? 'In Stock' : 'Out of stock'}
                           </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => {
+                                setEditProductId(p._id);
+                                setProdName(p.productName);
+                                setProdPrice(p.price.toString());
+                                setProdStock(p.stock.toString());
+                                setProdDesc(p.description || '');
+                                setProdImg(p.images[0] || '');
+                                setProdCat(p.category?._id || '');
+                                setShowAddForm(true);
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-800"
+                            >
+                              <Edit className="h-3 w-3" />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProduct(p._id)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-900/60"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              <span>Delete</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -908,30 +999,37 @@ export default function AdminDashboard({
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-zinc-850 text-[10px] font-bold text-zinc-500 uppercase tracking-widest bg-zinc-950/20">
-                      <th className="px-6 py-4">ID</th>
                       <th className="px-6 py-4">Category Name</th>
                       <th className="px-6 py-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {categories.length === 0 ? (
-                      <tr><td colSpan={3} className="text-center py-6 text-zinc-500 text-xs">No categories found.</td></tr>
+                      <tr><td colSpan={2} className="text-center py-6 text-zinc-500 text-xs">No categories found.</td></tr>
                     ) : categories.map(c => (
                       <tr key={c._id} className="border-b border-zinc-900 text-xs hover:bg-zinc-900/10 transition-colors">
-                        <td className="px-6 py-4 font-mono text-zinc-500 text-[10px]">{c._id}</td>
                         <td className="px-6 py-4 font-bold text-white uppercase">{c.categoryName}</td>
                         <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => {
-                              setEditCategoryId(c._id);
-                              setCatName(c.categoryName);
-                              setShowCategoryForm(true);
-                            }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-800"
-                          >
-                            <Edit className="h-3 w-3" />
-                            <span>Edit</span>
-                          </button>
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => {
+                                setEditCategoryId(c._id);
+                                setCatName(c.categoryName);
+                                setShowCategoryForm(true);
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-800"
+                            >
+                              <Edit className="h-3 w-3" />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteCategory(c._id)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-900/60"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              <span>Delete</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
