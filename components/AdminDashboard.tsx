@@ -132,7 +132,7 @@ export default function AdminDashboard({
       }
 
       // Pie chart data
-      if (order.status !== 'cancelled') {
+      if (order.status !== 'cancelled' && Array.isArray(order.items)) {
         order.items.forEach((item: any) => {
           const cat = item.productId?.category?.categoryName || 'Uncategorized';
           categorySales[cat] = (categorySales[cat] || 0) + (item.price * item.quantity);
