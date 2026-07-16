@@ -108,6 +108,7 @@ export default function AdminDashboard({
   const [reviews, setReviews] = useState<ReviewData[]>(initialReviews);
   
   // Review Form State
+  const [showReviewForm, setShowReviewForm] = useState(false);
   const [newReviewText, setNewReviewText] = useState('');
   const [newReviewRating, setNewReviewRating] = useState(5);
 
