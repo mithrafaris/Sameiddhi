@@ -87,7 +87,7 @@ export default function AdminRegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@preethika.com"
+                placeholder="admin@samriddhi.com"
                 className="w-full rounded-xl bg-zinc-950/60 border border-zinc-800 px-4 py-2.5 pl-10 text-sm text-zinc-200 focus:outline-none focus:border-violet-500 transition-colors"
               />
               <Mail className="absolute left-3.5 top-3 h-4.5 w-4.5 text-zinc-500" />

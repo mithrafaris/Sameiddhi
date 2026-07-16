@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const path = require('path');
-const MONGO_URL = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/Preethika';
+const MONGO_URL = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/Samriddhi';
 const bcrypt = require('bcryptjs');
 
 // Inline simple schemas for seed
@@ -52,18 +52,18 @@ async function seed() {
     await Products.deleteMany({});
     await Banner.deleteMany({});
 
-    const adminExists = await User.findOne({ email: 'admin@preethika.com' });
+    const adminExists = await User.findOne({ email: 'admin@samriddhi.com' });
     if (!adminExists) {
       console.log('Inserting Admin User...');
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash('Admin@123', salt);
       await User.create({
         name: 'Super Admin',
-        email: 'admin@preethika.com',
+        email: 'admin@samriddhi.com',
         password: hashedPassword,
         isadmin: true
       });
-      console.log('Admin user created (admin@preethika.com / Admin@123).');
+      console.log('Admin user created (admin@samriddhi.com / Admin@123).');
     } else {
       console.log('Admin user already exists.');
     }
@@ -162,7 +162,7 @@ async function seed() {
         bannerName: 'summer luxury launch',
         image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200&auto=format&fit=crop',
         title: 'Future Tech & Luxury Styles',
-        subtitle: 'Elevate your daily flow with Preethika collection. Get up to 30% off and pre-funded welcome wallets.'
+        subtitle: 'Elevate your daily flow with Samriddhi collection. Get up to 30% off and pre-funded welcome wallets.'
       },
       {
         bannerName: 'wearables campaign',

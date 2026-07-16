@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, User, Wallet, LogOut, ShieldAlert, ShoppingBag, Menu, X, Search, Heart } from 'lucide-react';
+import { ShoppingCart, User, Wallet, LogOut, ShieldAlert, Search, Heart } from 'lucide-react';
+import Image from 'next/image';
 
 interface UserSession {
   name: string;
@@ -67,15 +68,14 @@ export default function Navbar() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 shrink-0">
+          <Link href="/" className="flex items-center gap-2 z-50">
             <motion.div
               whileHover={{ rotate: 10, scale: 1.1 }}
-              transition={{ type: 'spring', stiffness: 300 }}
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 shadow-md shadow-violet-500/20"
+              className="relative h-10 w-10 flex items-center justify-center rounded-xl overflow-hidden shadow-md shadow-violet-900/20"
             >
-              <ShoppingBag className="h-5 w-5 text-white" />
+              <Image src="/logo.png" alt="Samriddhi Logo" fill className="object-cover" />
             </motion.div>
-            <span className="text-xl font-bold tracking-tight text-gradient">Preethika</span>
+            <span className="text-xl font-bold tracking-tight text-gradient">Samriddhi</span>
           </Link>
 
           {/* Search bar */}

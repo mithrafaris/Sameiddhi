@@ -54,7 +54,7 @@ export default function WalletPage() {
                 type: 'credit',
                 amount: cashbackAmount,
                 date: new Date(order.purchaseDate).toLocaleDateString('en-IN'),
-                description: `Preethika Rewards (Order #${order.orderId})`,
+                description: `Samriddhi Rewards (Order #${order.orderId})`,
               });
             }
 
@@ -116,7 +116,7 @@ export default function WalletPage() {
         key: rzpData.key,
         amount: rzpData.amount,
         currency: 'INR',
-        name: 'Preethika',
+        name: 'Samriddhi',
         description: 'Wallet Top-up',
         order_id: rzpData.orderId,
         handler: async function (response: any) {
@@ -198,7 +198,7 @@ export default function WalletPage() {
           <span>My Wallet</span>
           <span className="bg-violet-900/40 border border-violet-500/50 text-violet-400 text-xs px-2 py-1 rounded-full flex items-center gap-1">
             <Sparkles className="h-3 w-3" />
-            Preethika Rewards
+            Samriddhi Rewards
           </span>
         </h1>
       </div>
@@ -213,7 +213,7 @@ export default function WalletPage() {
             </div>
             <div className="text-3xl font-black text-white">₹{balance.toLocaleString('en-IN')}</div>
             <p className="text-[10px] text-zinc-400 font-semibold leading-relaxed">
-              Earn <span className="text-violet-400">2% cashback</span> on every purchase through Preethika Rewards. Use your balance on future orders seamlessly!
+              Earn <span className="text-violet-400">2% cashback</span> on every purchase through Samriddhi Rewards. Use your balance on future orders seamlessly!
             </p>
 
             {/* Quick add funds */}

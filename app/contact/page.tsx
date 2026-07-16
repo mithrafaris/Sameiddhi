@@ -55,7 +55,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold mb-1">Our Location</h4>
-                    <p className="text-sm text-zinc-400">123 Preethika Avenue, Tech District<br/>Bangalore, KA 560001</p>
+                    <p className="text-sm text-zinc-400">123 Samriddhi Avenue, Tech District<br/>Bangalore, KA 560001</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -64,7 +64,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold mb-1">Email Us</h4>
-                    <p className="text-sm text-zinc-400">support@preethika.com<br/>business@preethika.com</p>
+                    <p className="text-sm text-zinc-400">support@samriddhi.com<br/>business@samriddhi.com</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">

@@ -40,7 +40,7 @@ export async function GET() {
     });
 
     // Document header
-    doc.fontSize(24).font('Helvetica-Bold').fillColor('#8b5cf6').text('Preethika Store', { align: 'center' });
+    doc.fontSize(24).font('Helvetica-Bold').fillColor('#8b5cf6').text('Samriddhi Store', { align: 'center' });
     doc.fontSize(12).font('Helvetica').fillColor('#6b7280').text('SALES LEDGER AUDIT REPORT', { align: 'center' });
     doc.moveDown(2);
 
@@ -86,7 +86,7 @@ export async function GET() {
     return new Response(new Uint8Array(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="preethika_sales_report.pdf"',
+        'Content-Disposition': 'attachment; filename="samriddhi_sales_report.pdf"',
       },
     });
   } catch (err: any) {

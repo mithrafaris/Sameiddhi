@@ -12,7 +12,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
     }
 
-    const expectedSecretKey = process.env.ADMIN_SECRET_KEY || 'PreethikaAdmin123';
+    const expectedSecretKey = process.env.ADMIN_SECRET_KEY || 'SamriddhiAdmin123';
     if (secretKey !== expectedSecretKey) {
       return NextResponse.json({ error: 'Invalid Admin Secret Key' }, { status: 401 });
     }

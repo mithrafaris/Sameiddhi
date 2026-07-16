@@ -62,7 +62,7 @@ export async function GET() {
     return new Response(new Uint8Array(xlsxBuffer as ArrayBuffer), {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': 'attachment; filename="preethika_sales_report.xlsx"',
+        'Content-Disposition': 'attachment; filename="samriddhi_sales_report.xlsx"',
       },
     });
   } catch (err: any) {

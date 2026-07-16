@@ -13,7 +13,7 @@ interface ChatMessage {
 export default function AiAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { id: '1', sender: 'ai', text: 'Hi there! I am Preethika AI. How can I assist you with your premium shopping experience today?' }
+    { id: '1', sender: 'ai', text: 'Hi there! I am Samriddhi AI. How can I assist you with your premium shopping experience today?' }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -41,7 +41,7 @@ export default function AiAssistant() {
       
       const lowerInput = userMsg.text.toLowerCase();
       if (lowerInput.includes('hello') || lowerInput.includes('hi')) {
-        aiText = 'Hello! Welcome to Preethika. Are you looking for anything specific today?';
+        aiText = 'Hello! Welcome to Samriddhi. Are you looking for anything specific today?';
       } else if (lowerInput.includes('order') || lowerInput.includes('track')) {
         aiText = 'You can track your latest orders by heading over to the Orders section in your profile dashboard.';
       } else if (lowerInput.includes('recommend') || lowerInput.includes('best')) {
@@ -86,7 +86,7 @@ export default function AiAssistant() {
                   <Bot className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white tracking-wide">Preethika AI</h3>
+                  <h3 className="text-sm font-bold text-white tracking-wide">Samriddhi AI</h3>
                   <div className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                     <span className="text-[10px] font-semibold text-zinc-500 uppercase">Online</span>

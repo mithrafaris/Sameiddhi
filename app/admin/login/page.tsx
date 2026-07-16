@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
             <ShieldAlert className="h-6 w-6 text-white" />
           </div>
           <h2 className="text-2xl font-black text-white uppercase tracking-wider">Admin Control</h2>
-          <p className="text-xs text-zinc-500 font-semibold mt-1">LOG IN TO THE PREETHIKA BACKEND PANEL</p>
+          <p className="text-xs text-zinc-500 font-semibold mt-1">LOG IN TO THE SAMRIDDHI BACKEND PANEL</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -76,7 +76,7 @@ export default function AdminLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@preethika.com"
+                placeholder="admin@samriddhi.com"
                 className="w-full rounded-xl bg-zinc-950/60 border border-zinc-800 px-4 py-2.5 pl-10 text-sm text-zinc-200 focus:outline-none focus:border-violet-500 transition-colors"
               />
               <Mail className="absolute left-3.5 top-3 h-4.5 w-4.5 text-zinc-500" />

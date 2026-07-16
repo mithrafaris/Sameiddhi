@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag } from 'lucide-react';
+import Image from 'next/image';
 
 export default function Footer() {
   const pathname = usePathname();
@@ -17,13 +17,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 shadow-md">
-                <ShoppingBag className="h-4 w-4 text-white" />
+              <div className="relative h-10 w-10 flex items-center justify-center rounded-xl overflow-hidden shadow-md shadow-violet-900/20">
+                <Image src="/logo.png" alt="Samriddhi Logo" fill className="object-cover" />
               </div>
-              <span className="text-lg font-bold text-white tracking-tight">Preethika</span>
+              <span className="text-lg font-bold text-white tracking-tight">Samriddhi</span>
             </Link>
             <p className="text-sm text-zinc-500 max-w-xs">
-              Preethika is a next-generation premium e-commerce platform offering state-of-the-art products and seamless checkout experiences.
+              Samriddhi is a next-generation premium e-commerce platform offering state-of-the-art products and seamless checkout experiences.
             </p>
           </div>
           <div>
@@ -70,7 +70,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-zinc-900 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-zinc-500 gap-4">
-          <p>© {new Date().getFullYear()} Preethika E-Commerce. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Samriddhi E-Commerce. All rights reserved.</p>
           <div className="flex space-x-6">
             <a href="#" className="hover:text-zinc-400">Privacy Policy</a>
             <a href="#" className="hover:text-zinc-400">Terms of Service</a>

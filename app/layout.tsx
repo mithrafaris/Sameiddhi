@@ -11,17 +11,17 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Preethika | Premium E-Commerce Experience',
-  description: 'Shop luxury and state-of-the-art products on Preethika.',
+  title: 'Samriddhi | Premium E-Commerce Experience',
+  description: 'Shop luxury and state-of-the-art products on Samriddhi.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   icons: {
     icon: '/favicon.ico',
   },
   openGraph: {
-    title: 'Preethika | Premium E-Commerce',
-    description: 'Shop luxury and state-of-the-art products on Preethika.',
+    title: 'Samriddhi | Premium E-Commerce',
+    description: 'Shop luxury and state-of-the-art products on Samriddhi.',
     url: '/',
-    siteName: 'Preethika',
+    siteName: 'Samriddhi',
     images: [
       {
         url: '/favicon.ico',
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Preethika | Premium E-Commerce',
-    description: 'Shop luxury and state-of-the-art products on Preethika.',
+    title: 'Samriddhi | Premium E-Commerce',
+    description: 'Shop luxury and state-of-the-art products on Samriddhi.',
     images: ['/favicon.ico'],
   },
 };

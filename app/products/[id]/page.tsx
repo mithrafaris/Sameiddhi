@@ -29,10 +29,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     : `${baseUrl}/favicon.ico`;
 
   return {
-    title: `${rawProduct.productName} | Preethika`,
+    title: `${rawProduct.productName} | Samriddhi`,
     description: rawProduct.description?.substring(0, 160),
     openGraph: {
-      title: `${rawProduct.productName} | Preethika`,
+      title: `${rawProduct.productName} | Samriddhi`,
       description: rawProduct.description?.substring(0, 160),
       images: [{ url: imageUrl }],
       type: 'website',
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${rawProduct.productName} | Preethika`,
+      title: `${rawProduct.productName} | Samriddhi`,
       description: rawProduct.description?.substring(0, 160),
       images: [imageUrl],
     },

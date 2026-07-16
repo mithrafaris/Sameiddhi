@@ -105,7 +105,7 @@ export async function POST(request: Request) {
       user.wallet -= finalAmount;
     }
 
-    // Preethika Rewards: 2% Cashback on every order
+    // Samriddhi Rewards: 2% Cashback on every order
     const cashback = Math.floor(finalAmount * 0.02);
     user.wallet = (user.wallet || 0) + cashback;
 

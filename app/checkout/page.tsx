@@ -224,7 +224,7 @@ export default function CheckoutPage() {
           key: rzpData.key,
           amount: rzpData.amount,
           currency: 'INR',
-          name: 'Preethika',
+          name: 'Samriddhi',
           description: 'Secure Checkout',
           order_id: rzpData.orderId,
           handler: async function (response: any) {
@@ -337,7 +337,7 @@ export default function CheckoutPage() {
             </p>
           </div>
           <p className="text-sm text-zinc-400">
-            Thank you for shopping with Preethika. We have received your order and are preparing it for delivery.
+            Thank you for shopping with Samriddhi. We have received your order and are preparing it for delivery.
           </p>
           <button
             onClick={() => router.push('/orders')}
@@ -641,7 +641,7 @@ export default function CheckoutPage() {
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="Enter Coupon (e.g. PREETHIKA10)"
+                    placeholder="Enter Coupon (e.g. SAMRIDDHI10)"
                     value={coupon}
                     onChange={(e) => setCoupon(e.target.value)}
                     className="flex-1 rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-1.5 text-xs text-zinc-200 focus:outline-none"
@@ -656,7 +656,7 @@ export default function CheckoutPage() {
                 {couponError && (
                   <p className="text-[10px] font-medium text-red-400 mt-1">{couponError}</p>
                 )}
-                <p className="text-[10px] text-zinc-500 font-medium">Use code <span className="text-violet-400 font-bold">PREETHIKA10</span> for 10% off orders above ₹1,000.</p>
+                <p className="text-[10px] text-zinc-500 font-medium">Use code <span className="text-violet-400 font-bold">SAMRIDDHI10</span> for 10% off orders above ₹1,000.</p>
               </div>
             )}
           </div>
@@ -690,7 +690,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex items-center gap-2 pt-2 text-xs font-semibold text-violet-400 bg-violet-950/20 px-3 py-2 rounded-lg border border-violet-900/30">
                 <Sparkles className="h-4 w-4" />
-                <span>Earn ₹{estimatedCashback} Preethika Rewards cashback!</span>
+                <span>Earn ₹{estimatedCashback} Samriddhi Rewards cashback!</span>
               </div>
             </div>
 

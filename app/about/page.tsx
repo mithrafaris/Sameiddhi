@@ -14,7 +14,7 @@ export default function AboutPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-6"
           >
-            About <span className="text-gradient">Preethika</span>
+            About <span className="text-gradient">Samriddhi</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -48,7 +48,7 @@ export default function AboutPage() {
           >
             <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
             <p className="text-zinc-400 mb-4 leading-relaxed">
-              At Preethika, our goal is to curate and deliver the finest products in electronics, apparel, and accessories, wrapped in a shopping experience that feels futuristic and effortless.
+              At Samriddhi, our goal is to curate and deliver the finest products in electronics, apparel, and accessories, wrapped in a shopping experience that feels futuristic and effortless.
             </p>
             <p className="text-zinc-400 leading-relaxed">
               We started as a small passionate team aiming to break away from standard, boring online stores. Today, we're proud to offer an immersive, dynamic platform that puts the user at the center of everything.

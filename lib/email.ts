@@ -23,12 +23,12 @@ export async function sendWelcomeEmail(to: string, name: string) {
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
       <div style="text-align: center; padding: 20px 0;">
-        <h1 style="color: #6d28d9; margin: 0;">Welcome to Preethika!</h1>
+        <h1 style="color: #6d28d9; margin: 0;">Welcome to Samriddhi!</h1>
       </div>
       <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
         <h2 style="color: #333333; margin-top: 0;">Hi ${name},</h2>
         <p style="color: #555555; line-height: 1.6;">
-          Thank you for creating an account with Preethika! We are thrilled to have you on board.
+          Thank you for creating an account with Samriddhi! We are thrilled to have you on board.
         </p>
         <p style="color: #555555; line-height: 1.6;">
           You can now browse our premium catalog, save items to your wishlist, and enjoy a seamless shopping experience.
@@ -38,22 +38,22 @@ export async function sendWelcomeEmail(to: string, name: string) {
         </div>
       </div>
       <div style="text-align: center; padding-top: 20px; color: #999999; font-size: 12px;">
-        &copy; ${new Date().getFullYear()} Preethika. All rights reserved.
+        &copy; ${new Date().getFullYear()} Samriddhi. All rights reserved.
       </div>
     </div>
   `;
 
   if (!isConfigured) {
     console.log('\n[MOCK EMAIL] Welcome Email to:', to);
-    console.log('[MOCK EMAIL] Subject: Welcome to Preethika!');
+    console.log('[MOCK EMAIL] Subject: Welcome to Samriddhi!');
     return;
   }
 
   try {
     await transporter.sendMail({
-      from: `"Preethika" <${SMTP_USER}>`,
+      from: `"Samriddhi" <${SMTP_USER}>`,
       to,
-      subject: 'Welcome to Preethika!',
+      subject: 'Welcome to Samriddhi!',
       html,
     });
   } catch (error) {
@@ -110,7 +110,7 @@ export async function sendOrderConfirmationEmail(to: string, name: string, order
         </div>
       </div>
       <div style="text-align: center; padding-top: 20px; color: #999999; font-size: 12px;">
-        &copy; ${new Date().getFullYear()} Preethika. All rights reserved.
+        &copy; ${new Date().getFullYear()} Samriddhi. All rights reserved.
       </div>
     </div>
   `;
@@ -123,7 +123,7 @@ export async function sendOrderConfirmationEmail(to: string, name: string, order
 
   try {
     await transporter.sendMail({
-      from: `"Preethika" <${SMTP_USER}>`,
+      from: `"Samriddhi" <${SMTP_USER}>`,
       to,
       subject: `Order Confirmed - #${orderDetails.orderId}`,
       html,

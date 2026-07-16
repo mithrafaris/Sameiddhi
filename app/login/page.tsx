@@ -57,7 +57,7 @@ export default function LoginPage() {
             <ShoppingBag className="h-6 w-6 text-white" />
           </div>
           <h2 className="text-2xl font-black text-white uppercase tracking-wider">Welcome Back</h2>
-          <p className="text-xs text-zinc-500 font-semibold mt-1">LOG IN TO YOUR PREETHIKA ACCOUNT</p>
+          <p className="text-xs text-zinc-500 font-semibold mt-1">LOG IN TO YOUR SAMRIDDHI ACCOUNT</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

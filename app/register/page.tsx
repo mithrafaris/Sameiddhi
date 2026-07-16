@@ -58,7 +58,7 @@ export default function RegisterPage() {
             <ShoppingBag className="h-6 w-6 text-white" />
           </div>
           <h2 className="text-2xl font-black text-white uppercase tracking-wider">Create Account</h2>
-          <p className="text-xs text-zinc-500 font-semibold mt-1">START YOUR PREETHIKA SHOPPING JOURNEY</p>
+          <p className="text-xs text-zinc-500 font-semibold mt-1">START YOUR SAMRIDDHI SHOPPING JOURNEY</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
