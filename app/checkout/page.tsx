@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Script from 'next/script';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Wallet, CreditCard, Tag, Plus, CheckCircle, ArrowLeft, Leaf, Sparkles } from 'lucide-react';
 
@@ -172,6 +173,68 @@ export default function CheckoutPage() {
     setPlacingOrder(true);
 
     try {
+      if (paymentMethod === 'razorpay') {
+        const rzpRes = await fetch('/api/razorpay/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ couponName: appliedCoupon, isGreenShipping }),
+        });
+        const rzpData = await rzpRes.json();
+        if (!rzpRes.ok) throw new Error(rzpData.error || 'Failed to initialize payment');
+
+        const options = {
+          key: rzpData.key,
+          amount: rzpData.amount,
+          currency: 'INR',
+          name: 'Preethika',
+          description: 'Secure Checkout',
+          order_id: rzpData.orderId,
+          handler: async function (response: any) {
+            try {
+              const res = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  addressId: selectedAddress,
+                  paymentMethod,
+                  couponName: appliedCoupon,
+                  isGreenShipping,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature
+                }),
+              });
+              const data = await res.json();
+              if (res.ok) {
+                setOrderSuccess(data.orderId);
+                window.dispatchEvent(new Event('popstate'));
+              } else {
+                setCheckoutError(data.error || 'Payment verification failed');
+              }
+            } catch {
+              setCheckoutError('Unexpected error during verification');
+            } finally {
+              setPlacingOrder(false);
+            }
+          },
+          prefill: {
+            name: 'Customer',
+            email: 'demo@example.com',
+            contact: '9999999999'
+          },
+          theme: { color: '#6d28d9' }
+        };
+        
+        const rzp1 = new (window as any).Razorpay(options);
+        rzp1.on('payment.failed', function () {
+           setCheckoutError('Payment failed or cancelled.');
+           setPlacingOrder(false);
+        });
+        rzp1.open();
+        return;
+      }
+
+      // COD and Wallet Flow
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -191,10 +254,12 @@ export default function CheckoutPage() {
       } else {
         setCheckoutError(data.error || 'Failed to place order');
       }
-    } catch {
-      setCheckoutError('An unexpected error occurred. Please try again.');
+    } catch (err: any) {
+      setCheckoutError(err.message || 'An unexpected error occurred. Please try again.');
     } finally {
-      setPlacingOrder(false);
+      if (paymentMethod !== 'razorpay') {
+        setPlacingOrder(false);
+      }
     }
   };
 
@@ -248,7 +313,9 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 flex flex-col justify-center w-full">
+    <>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 flex flex-col justify-center w-full">
       <div className="flex items-center gap-3 mb-8">
         <button onClick={() => router.back()} className="p-1.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-white transition-colors cursor-pointer">
           <ArrowLeft className="h-4 w-4" />
@@ -444,13 +511,13 @@ export default function CheckoutPage() {
                 </div>
               </button>
 
-              {/* Razorpay (Simulated/Mock) */}
-              <button
+              {/* Razorpay Option */}
+              <div
                 onClick={() => setPaymentMethod('razorpay')}
-                className={`p-4 rounded-2xl border transition-all text-center flex flex-col items-center justify-center space-y-2 cursor-pointer ${
+                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-4 ${
                   paymentMethod === 'razorpay'
-                    ? 'border-violet-500 bg-violet-950/15'
-                    : 'border-zinc-800 bg-zinc-950/20 hover:border-zinc-700'
+                    ? 'border-violet-500 bg-violet-500/10'
+                    : 'border-zinc-800 hover:border-zinc-700 bg-zinc-900/30'
                 }`}
               >
                 <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800">
@@ -585,6 +652,6 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

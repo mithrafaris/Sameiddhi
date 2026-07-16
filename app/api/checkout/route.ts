@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import dbConnect from '@/lib/db';
+import crypto from 'crypto';
 import User from '@/lib/models/User';
 import Product from '@/lib/models/Product';
 import Order from '@/lib/models/Order';
@@ -22,10 +23,24 @@ export async function POST(request: Request) {
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await request.json();
-    const { addressId, paymentMethod, couponName, isGreenShipping } = body;
+    const { addressId, paymentMethod, couponName, isGreenShipping, razorpay_payment_id, razorpay_order_id, razorpay_signature } = body;
 
     if (!addressId || !paymentMethod) {
       return NextResponse.json({ error: 'Address and payment method are required' }, { status: 400 });
+    }
+
+    if (paymentMethod === 'razorpay') {
+      if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+        return NextResponse.json({ error: 'Razorpay payment details missing' }, { status: 400 });
+      }
+
+      const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'mock_secret');
+      hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+      const generated_signature = hmac.digest('hex');
+
+      if (generated_signature !== razorpay_signature) {
+        return NextResponse.json({ error: 'Payment verification failed. Invalid signature.' }, { status: 400 });
+      }
     }
 
     await dbConnect();
