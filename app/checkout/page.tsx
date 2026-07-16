@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Wallet, CreditCard, Tag, Plus, CheckCircle, ArrowLeft, Leaf, Sparkles } from 'lucide-react';
+import { MapPin, Wallet, CreditCard, Tag, Plus, CheckCircle, ArrowLeft, Leaf, Sparkles, Trash2, Edit2 } from 'lucide-react';
 
 interface Address {
   _id: string;
@@ -35,6 +35,7 @@ export default function CheckoutPage() {
 
   // Address Form State
   const [showAddressForm, setShowAddressForm] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [houseNumber, setHouseNumber] = useState('');
@@ -102,8 +103,12 @@ export default function CheckoutPage() {
   const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/profile/address', {
-        method: 'POST',
+      const isEditing = !!editingAddressId;
+      const url = isEditing ? `/api/profile/address/${editingAddressId}` : '/api/profile/address';
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
@@ -119,10 +124,11 @@ export default function CheckoutPage() {
       if (res.ok) {
         const data = await res.json();
         setAddresses(data.addresses);
-        if (data.addresses.length > 0) {
+        if (data.addresses.length > 0 && !isEditing) {
           setSelectedAddress(data.addresses[data.addresses.length - 1]._id);
         }
         setShowAddressForm(false);
+        setEditingAddressId(null);
         // Clear inputs
         setName('');
         setPhone('');
@@ -131,6 +137,38 @@ export default function CheckoutPage() {
         setAddressLine('');
         setCity('');
         setState('');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleEditClick = (addr: Address, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingAddressId(addr._id);
+    setName(addr.name);
+    setPhone(addr.phone.toString());
+    setHouseNumber(addr.houseNumber);
+    setPincode(addr.pincode.toString());
+    setAddressLine(addr.address);
+    setCity(addr.city);
+    setState(addr.state);
+    setShowAddressForm(true);
+  };
+
+  const handleDeleteAddress = async (addrId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm('Are you sure you want to delete this address?')) return;
+    try {
+      const res = await fetch(`/api/profile/address/${addrId}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAddresses(data.addresses);
+        if (selectedAddress === addrId) {
+          setSelectedAddress(data.addresses.length > 0 ? data.addresses[0]._id : '');
+        }
       }
     } catch (err) {
       console.error(err);
@@ -335,20 +373,28 @@ export default function CheckoutPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Address Selection */}
           <div className="glass-card p-6 rounded-3xl border border-zinc-800/80 bg-zinc-900/10 space-y-6">
-            <div className="flex justify-between items-center pb-3 border-b border-zinc-850">
+            <div className="flex items-center justify-between pb-4 border-b border-zinc-850">
               <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
                 <MapPin className="h-4.5 w-4.5 text-violet-500" />
                 <span>Delivery Address</span>
               </h3>
-              {!showAddressForm && (
-                <button
-                  onClick={() => setShowAddressForm(true)}
-                  className="flex items-center gap-1 text-xs font-semibold text-violet-400 hover:text-violet-300 cursor-pointer"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  <span>Add New</span>
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  setEditingAddressId(null);
+                  setName('');
+                  setPhone('');
+                  setHouseNumber('');
+                  setPincode('');
+                  setAddressLine('');
+                  setCity('');
+                  setState('');
+                  setShowAddressForm(!showAddressForm);
+                }}
+                className="flex items-center gap-1 text-xs font-semibold text-violet-400 hover:text-violet-300 cursor-pointer"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Add New</span>
+              </button>
             </div>
 
             {/* Address Add Form */}
@@ -433,9 +479,9 @@ export default function CheckoutPage() {
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-xs font-semibold text-white"
+                      className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-xs font-semibold text-white transition-colors"
                     >
-                      Save Address
+                      {editingAddressId ? 'Update Address' : 'Save Address'}
                     </button>
                   </div>
                 </motion.form>
@@ -446,23 +492,31 @@ export default function CheckoutPage() {
             {addresses.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {addresses.map((addr) => (
-                  <button
+                  <div
                     key={addr._id}
                     onClick={() => setSelectedAddress(addr._id)}
-                    className={`text-left p-4 rounded-2xl border transition-all flex flex-col justify-between ${
+                    className={`relative text-left p-4 rounded-2xl border transition-all flex flex-col justify-between cursor-pointer ${
                       selectedAddress === addr._id
                         ? 'border-violet-500 bg-violet-950/15'
                         : 'border-zinc-800 bg-zinc-950/20 hover:border-zinc-700'
                     }`}
                   >
-                    <div className="space-y-1">
+                    <div className="absolute top-3 right-3 flex gap-2">
+                      <button onClick={(e) => handleEditClick(addr, e)} className="p-1.5 text-zinc-400 hover:text-white bg-zinc-900 rounded-md transition-colors border border-zinc-800">
+                        <Edit2 className="h-3 w-3" />
+                      </button>
+                      <button onClick={(e) => handleDeleteAddress(addr._id, e)} className="p-1.5 text-red-400 hover:text-red-300 bg-red-950/30 rounded-md transition-colors border border-red-900/50">
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                    <div className="space-y-1 pr-12">
                       <span className="text-xs font-bold text-white uppercase">{addr.name}</span>
                       <p className="text-[11px] text-zinc-400 line-clamp-2">
                         {addr.houseNumber}, {addr.address}, {addr.city}, {addr.state} - {addr.pincode}
                       </p>
                     </div>
                     <span className="text-[10px] font-semibold text-zinc-500 mt-3">Phone: {addr.phone}</span>
-                  </button>
+                  </div>
                 ))}
               </div>
             ) : (

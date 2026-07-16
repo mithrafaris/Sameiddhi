@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Mail, Phone, MapPin, Trash2, Plus, ArrowLeft } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Trash2, Plus, ArrowLeft, Edit2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface Address {
@@ -29,6 +29,7 @@ export default function ProfilePage() {
 
   // Address add form state
   const [showForm, setShowForm] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [houseNumber, setHouseNumber] = useState('');
@@ -73,8 +74,12 @@ export default function ProfilePage() {
   const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/profile/address', {
-        method: 'POST',
+      const isEditing = !!editingAddressId;
+      const url = isEditing ? `/api/profile/address/${editingAddressId}` : '/api/profile/address';
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
@@ -91,6 +96,7 @@ export default function ProfilePage() {
         const data = await res.json();
         setAddresses(data.addresses);
         setShowForm(false);
+        setEditingAddressId(null);
         // Clear
         setName('');
         setPhone('');
@@ -105,16 +111,28 @@ export default function ProfilePage() {
     }
   };
 
+  const handleEditClick = (addr: any) => {
+    setEditingAddressId(addr._id);
+    setName(addr.name);
+    setPhone(addr.phone.toString());
+    setHouseNumber(addr.houseNumber);
+    setPincode(addr.pincode.toString());
+    setAddressLine(addr.address);
+    setCity(addr.city);
+    setState(addr.state);
+    setShowForm(true);
+  };
+
   const handleDeleteAddress = async (addressId: string) => {
+    if (!confirm('Are you sure you want to delete this address?')) return;
     try {
-      const res = await fetch('/api/profile/address', {
+      const res = await fetch(`/api/profile/address/${addressId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ addressId }),
       });
 
       if (res.ok) {
-        setAddresses((prev) => prev.filter((item) => item._id !== addressId));
+        const data = await res.json();
+        setAddresses(data.addresses);
       }
     } catch (err) {
       console.error(err);
@@ -177,7 +195,17 @@ export default function ProfilePage() {
               </h3>
               {!showForm && (
                 <button
-                  onClick={() => setShowForm(true)}
+                  onClick={() => {
+                    setEditingAddressId(null);
+                    setName('');
+                    setPhone('');
+                    setHouseNumber('');
+                    setPincode('');
+                    setAddressLine('');
+                    setCity('');
+                    setState('');
+                    setShowForm(true);
+                  }}
                   className="flex items-center gap-1 text-xs font-semibold text-violet-400 hover:text-violet-300 cursor-pointer"
                 >
                   <Plus className="h-3.5 w-3.5" />
@@ -270,7 +298,7 @@ export default function ProfilePage() {
                       type="submit"
                       className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-xs font-semibold text-white"
                     >
-                      Save Address
+                      {editingAddressId ? 'Update Address' : 'Save Address'}
                     </button>
                   </div>
                 </motion.form>
@@ -283,22 +311,23 @@ export default function ProfilePage() {
                 addresses.map((addr) => (
                   <div
                     key={addr._id}
-                    className="p-4 rounded-2xl border border-zinc-800 bg-zinc-950/20 flex justify-between items-center"
+                    className="relative p-4 rounded-2xl border border-zinc-800 bg-zinc-950/20 flex justify-between items-center"
                   >
-                    <div className="space-y-1">
+                    <div className="absolute top-3 right-3 flex gap-2">
+                        <button onClick={() => handleEditClick(addr)} className="p-1.5 text-zinc-400 hover:text-white bg-zinc-900 rounded-md transition-colors border border-zinc-800">
+                          <Edit2 className="h-3 w-3" />
+                        </button>
+                        <button onClick={() => handleDeleteAddress(addr._id)} className="p-1.5 text-red-400 hover:text-red-300 bg-red-950/30 rounded-md transition-colors border border-red-900/50">
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                    </div>
+                    <div className="space-y-1 pr-16">
                       <span className="text-xs font-bold text-white uppercase block">{addr.name}</span>
                       <p className="text-xs text-zinc-450 leading-relaxed max-w-md">
                         {addr.houseNumber}, {addr.address}, {addr.city}, {addr.state} - {addr.pincode}
                       </p>
                       <span className="text-[10px] font-semibold text-zinc-500 block">Phone: {addr.phone}</span>
                     </div>
-
-                    <button
-                      onClick={() => handleDeleteAddress(addr._id)}
-                      className="p-2 text-zinc-500 hover:text-red-400 transition-colors hover:bg-red-950/20 rounded-xl cursor-pointer"
-                    >
-                      <Trash2 className="h-4.5 w-4.5" />
-                    </button>
                   </div>
                 ))
               ) : (
