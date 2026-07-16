@@ -527,7 +527,7 @@ export default function CheckoutPage() {
                   <span className="block text-xs font-bold text-white uppercase">Online Card</span>
                   <span className="text-[10px] text-zinc-500">Fast Checkout</span>
                 </div>
-              </button>
+              </div>
             </div>
           </div>
 
