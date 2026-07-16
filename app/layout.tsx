@@ -13,8 +13,30 @@ const plusJakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: 'Preethika | Premium E-Commerce Experience',
   description: 'Shop luxury and state-of-the-art products on Preethika.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   icons: {
     icon: '/favicon.ico',
+  },
+  openGraph: {
+    title: 'Preethika | Premium E-Commerce',
+    description: 'Shop luxury and state-of-the-art products on Preethika.',
+    url: '/',
+    siteName: 'Preethika',
+    images: [
+      {
+        url: '/favicon.ico',
+        width: 800,
+        height: 600,
+      },
+    ],
+    locale: 'en_IN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Preethika | Premium E-Commerce',
+    description: 'Shop luxury and state-of-the-art products on Preethika.',
+    images: ['/favicon.ico'],
   },
 };
 

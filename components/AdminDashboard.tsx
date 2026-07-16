@@ -1,7 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend
+} from 'recharts';
 import { 
   LayoutDashboard, Users, ShoppingBag, ShoppingCart, FileSpreadsheet, 
   ShieldAlert, UserCheck, UserMinus, Plus, Trash2, Edit, ChevronRight, LogOut, CheckCircle, Package, Receipt, Tag, Image as ImageIcon, FolderTree, MessageSquare, Star
@@ -104,7 +108,47 @@ export default function AdminDashboard({
   const [reviews, setReviews] = useState<ReviewData[]>(initialReviews);
   
   // Review Form State
-  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [newReviewText, setNewReviewText] = useState('');
+  const [newReviewRating, setNewReviewRating] = useState(5);
+
+  // --- Chart Data Processing ---
+  const chartData = useMemo(() => {
+    // Process last 7 days of revenue
+    const last7Days: { date: string, revenue: number }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      last7Days.push({ date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), revenue: 0 });
+    }
+    
+    const categorySales: Record<string, number> = {};
+
+    orders.forEach(order => {
+      // Line chart data
+      const orderDate = new Date(order.purchaseDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const dayData = last7Days.find(d => d.date === orderDate);
+      if (dayData && order.status !== 'cancelled') {
+        dayData.revenue += order.totalAmount;
+      }
+
+      // Pie chart data
+      if (order.status !== 'cancelled') {
+        order.items.forEach((item: any) => {
+          const cat = item.productId?.category?.categoryName || 'Uncategorized';
+          categorySales[cat] = (categorySales[cat] || 0) + (item.price * item.quantity);
+        });
+      }
+    });
+
+    const pieData = Object.keys(categorySales).map(key => ({
+      name: key,
+      value: categorySales[key]
+    }));
+
+    return { lineData: last7Days, pieData };
+  }, [orders]);
+
+  const COLORS = ['#7c3aed', '#db2777', '#0ea5e9', '#10b981', '#f59e0b'];
   const [editReviewData, setEditReviewData] = useState<ReviewData | null>(null);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
@@ -962,7 +1006,6 @@ export default function AdminDashboard({
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {/* PDF Export card */}
                 <div className="glass-card p-6 rounded-3xl border border-zinc-800/80 bg-zinc-900/10 flex flex-col justify-between items-start space-y-6">
                   <div className="space-y-2">
                     <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">PDF FORMAT</span>
@@ -978,6 +1021,81 @@ export default function AdminDashboard({
                   >
                     Download PDF Invoice Statement
                   </a>
+                </div>
+
+                {/* Excel Export card */}
+                <div className="glass-card p-6 rounded-3xl border border-zinc-800/80 bg-zinc-900/10 flex flex-col justify-between items-start space-y-6">
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block">XLSX SHEET</span>
+                    <h3 className="text-lg font-bold text-white uppercase">Sales Ledger Excel</h3>
+                    <p className="text-xs text-zinc-400 max-w-xs">
+                      Export structured grid columns ready for audit, containing details such as pricing, items, and tax metrics.
+                    </p>
+                  </div>
+                  <a
+                    href="/api/admin/reports/excel"
+                    target="_blank"
+                    className="w-full inline-flex items-center justify-center rounded-xl bg-pink-600 hover:bg-pink-500 py-3 text-xs font-semibold text-white transition-colors"
+                  >
+                    Download XLSX Spreadsheet
+                  </a>
+                </div>
+              </div>
+
+              {/* Charts Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                {/* Revenue Line Chart */}
+                <div className="glass-card p-6 rounded-3xl border border-zinc-800/80 bg-zinc-900/10 space-y-6">
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider pb-3 border-b border-zinc-850">
+                    7-Day Revenue Trend
+                  </h3>
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartData.lineData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                        <XAxis dataKey="date" stroke="#71717a" fontSize={10} tickLine={false} axisLine={false} />
+                        <YAxis stroke="#71717a" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val}`} />
+                        <Tooltip 
+                          contentStyle={{ backgroundColor: '#09090b', borderColor: '#27272a', borderRadius: '12px' }}
+                          itemStyle={{ color: '#c4b5fd', fontSize: '12px' }}
+                          labelStyle={{ color: '#a1a1aa', fontSize: '10px' }}
+                        />
+                        <Line type="monotone" dataKey="revenue" stroke="#7c3aed" strokeWidth={3} dot={{ fill: '#7c3aed', strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Sales by Category Pie Chart */}
+                <div className="glass-card p-6 rounded-3xl border border-zinc-800/80 bg-zinc-900/10 space-y-6">
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider pb-3 border-b border-zinc-850">
+                    Sales by Category
+                  </h3>
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={chartData.pieData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {chartData.pieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip 
+                          contentStyle={{ backgroundColor: '#09090b', borderColor: '#27272a', borderRadius: '12px' }}
+                          itemStyle={{ color: '#fff', fontSize: '12px' }}
+                          formatter={(value: number) => [`₹${value}`, 'Sales']}
+                        />
+                        <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px', color: '#a1a1aa' }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
 
                 {/* Excel Export card */}

@@ -1,8 +1,21 @@
 import { NextResponse, NextRequest } from 'next/server';
+import { rateLimit } from './lib/rate-limit';
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('session_token')?.value;
   const { pathname } = request.nextUrl;
+  const ip = request.headers.get('x-forwarded-for') || request.ip || '127.0.0.1';
+
+  // Rate Limiting for API routes
+  if (pathname.startsWith('/api/')) {
+    // 30 requests per minute per IP for API
+    if (!rateLimit(ip, 30, 60000)) {
+      return new NextResponse(
+        JSON.stringify({ error: 'Too many requests. Please try again later.' }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+  }
 
   // Protect Admin routes
   if (pathname.startsWith('/admin')) {
