@@ -313,6 +313,18 @@ export default function AdminDashboard({
     }
   };
 
+  const handleDeleteCoupon = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this coupon?')) return;
+    try {
+      const res = await fetch(`/api/admin/coupons?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setCoupons(coupons.filter(c => c._id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // Banner Add/Edit Form State
   const [showBannerForm, setShowBannerForm] = useState(false);
   const [editBannerId, setEditBannerId] = useState<string | null>(null);
@@ -356,6 +368,18 @@ export default function AdminDashboard({
         setBannerTitle('');
         setBannerSubtitle('');
         setBannerImage('');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteBanner = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this banner?')) return;
+    try {
+      const res = await fetch(`/api/admin/banners?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setBanners(banners.filter(b => b._id !== id));
       }
     } catch (err) {
       console.error(err);
@@ -441,6 +465,18 @@ export default function AdminDashboard({
       });
       if (res.ok) {
         setOrders(orders.map(o => o._id === orderId ? { ...o, status: newStatus } : o));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteOrder = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this order?')) return;
+    try {
+      const res = await fetch(`/api/admin/orders?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setOrders(orders.filter(o => o._id !== id));
       }
     } catch (err) {
       console.error(err);
@@ -974,17 +1010,25 @@ export default function AdminDashboard({
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          {order.status !== 'cancelled' && order.status !== 'delivered' && (
-                            <select
-                              value={order.status}
-                              onChange={(e) => handleUpdateOrderStatus(order._id, e.target.value)}
-                              className="bg-zinc-950 border border-zinc-800 rounded-lg px-2 py-1 text-[10px] text-zinc-300 focus:outline-none"
+                          <div className="flex gap-2 justify-end items-center">
+                            {order.status !== 'cancelled' && order.status !== 'delivered' && (
+                              <select
+                                value={order.status}
+                                onChange={(e) => handleUpdateOrderStatus(order._id, e.target.value)}
+                                className="bg-zinc-950 border border-zinc-800 rounded-lg px-2 py-1 text-[10px] text-zinc-300 focus:outline-none"
+                              >
+                                <option value="placed">Placed</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                              </select>
+                            )}
+                            <button
+                              onClick={() => handleDeleteOrder(order._id)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-900/60"
                             >
-                              <option value="placed">Placed</option>
-                              <option value="shipped">Shipped</option>
-                              <option value="delivered">Delivered</option>
-                            </select>
-                          )}
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1411,21 +1455,30 @@ export default function AdminDashboard({
                         <td className="px-6 py-4 text-zinc-300">₹{c.maxValue}</td>
                         <td className="px-6 py-4 text-zinc-400">{c.expiryDate}</td>
                         <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => {
-                              setEditCouponId(c._id);
-                              setCouponName(c.couponName);
-                              setCouponValue(c.couponValue.toString());
-                              setCouponExpiry(c.expiryDate);
-                              setCouponMin(c.minValue.toString());
-                              setCouponMax(c.maxValue.toString());
-                              setShowCouponForm(true);
-                            }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-800"
-                          >
-                            <Edit className="h-3 w-3" />
-                            <span>Edit</span>
-                          </button>
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              onClick={() => {
+                                setEditCouponId(c._id);
+                                setCouponName(c.couponName);
+                                setCouponValue(c.couponValue.toString());
+                                setCouponExpiry(c.expiryDate);
+                                setCouponMin(c.minValue.toString());
+                                setCouponMax(c.maxValue.toString());
+                                setShowCouponForm(true);
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-800"
+                            >
+                              <Edit className="h-3 w-3" />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteCoupon(c._id)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-900/60"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              <span>Delete</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1566,20 +1619,29 @@ export default function AdminDashboard({
                         <td className="px-6 py-4 text-zinc-300">{b.title}</td>
                         <td className="px-6 py-4 text-zinc-400">{b.subtitle}</td>
                         <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => {
-                              setEditBannerId(b._id);
-                              setBannerName(b.bannerName);
-                              setBannerTitle(b.title);
-                              setBannerSubtitle(b.subtitle);
-                              setBannerImage(b.image);
-                              setShowBannerForm(true);
-                            }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-800"
-                          >
-                            <Edit className="h-3 w-3" />
-                            <span>Edit</span>
-                          </button>
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              onClick={() => {
+                                setEditBannerId(b._id);
+                                setBannerName(b.bannerName);
+                                setBannerTitle(b.title);
+                                setBannerSubtitle(b.subtitle);
+                                setBannerImage(b.image);
+                                setShowBannerForm(true);
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 border border-zinc-800"
+                            >
+                              <Edit className="h-3 w-3" />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteBanner(b._id)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-900/60"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              <span>Delete</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

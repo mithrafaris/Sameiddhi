@@ -46,3 +46,27 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: 'Failed to update banner' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  const isAdmin = await checkAdmin(request);
+  if (!isAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  try {
+    await dbConnect();
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'Banner ID is required' }, { status: 400 });
+    }
+
+    const deleted = await Banner.findByIdAndDelete(id);
+    if (!deleted) {
+      return NextResponse.json({ error: 'Banner not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Banner deleted successfully' });
+  } catch (error: any) {
+    return NextResponse.json({ error: 'Failed to delete banner' }, { status: 500 });
+  }
+}
