@@ -71,7 +71,7 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-2 z-50">
             <motion.div
               whileHover={{ rotate: 10, scale: 1.1 }}
-              className="relative h-10 w-10 flex items-center justify-center rounded-xl overflow-hidden shadow-md shadow-violet-900/20"
+              className="relative h-10 w-10 flex items-center justify-center rounded-xl overflow-hidden shadow-md shadow-purple-900/20"
             >
               <Image src="/logo.png" alt="Samriddhi Logo" fill className="object-cover" />
             </motion.div>
@@ -85,33 +85,33 @@ export default function Navbar() {
               placeholder="Search premium products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full bg-zinc-900/60 border border-zinc-800 px-4 py-1.5 pl-10 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all duration-300"
+              className="w-full rounded-full bg-slate-900/60 border border-slate-800 px-4 py-1.5 pl-10 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all duration-300"
             />
-            <Search className="absolute left-3.5 top-2.5 h-4.5 w-4.5 text-zinc-500" />
+            <Search className="absolute left-3.5 top-2.5 h-4.5 w-4.5 text-slate-500" />
           </form>
 
           {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link href="/products" className="text-sm font-medium text-zinc-300 hover:text-white transition-colors">
+            <Link href="/products" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
               Shop
             </Link>
 
             {session ? (
               <>
                 {/* Wallet Balance */}
-                <Link href="/wallet" className="flex items-center space-x-1 text-sm font-medium text-zinc-300 hover:text-white transition-colors bg-zinc-900/60 border border-zinc-800 rounded-full px-3 py-1">
+                <Link href="/wallet" className="flex items-center space-x-1 text-sm font-medium text-slate-300 hover:text-white transition-colors bg-slate-900/60 border border-slate-800 rounded-full px-3 py-1">
                   <Wallet className="h-4 w-4 text-emerald-500" />
                   <span>₹{session.wallet.toFixed(2)}</span>
                 </Link>
 
                 {/* Cart Icon */}
-                <Link href="/cart" className="relative p-2 text-zinc-300 hover:text-white transition-colors">
+                <Link href="/cart" className="relative p-2 text-slate-300 hover:text-white transition-colors">
                   <ShoppingCart className="h-5 w-5" />
                   {session.cartCount > 0 && (
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-violet-600 text-[10px] font-bold text-white"
+                      className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-purple-600 text-[10px] font-bold text-white"
                     >
                       {session.cartCount}
                     </motion.span>
@@ -119,18 +119,18 @@ export default function Navbar() {
                 </Link>
 
                 {/* Wishlist Icon */}
-                <Link href="/wishlist" className="p-2 text-zinc-300 hover:text-white transition-colors">
+                <Link href="/wishlist" className="p-2 text-slate-300 hover:text-white transition-colors">
                   <Heart className="h-5 w-5" />
                 </Link>
 
                 {/* Profile Icon */}
-                <Link href="/profile" className="p-2 text-zinc-300 hover:text-white transition-colors">
+                <Link href="/profile" className="p-2 text-slate-300 hover:text-white transition-colors">
                   <User className="h-5 w-5" />
                 </Link>
 
                 {/* Admin dashboard if admin */}
                 {session.isadmin && (
-                  <Link href="/admin" className="flex items-center space-x-1 text-xs font-semibold text-violet-400 bg-violet-950/40 border border-violet-800/60 rounded-full px-3 py-1 hover:bg-violet-900/40 transition-colors">
+                  <Link href="/admin" className="flex items-center space-x-1 text-xs font-semibold text-purple-400 bg-purple-950/40 border border-purple-800/60 rounded-full px-3 py-1 hover:bg-purple-900/40 transition-colors">
                     <ShieldAlert className="h-3.5 w-3.5" />
                     <span>Admin</span>
                   </Link>
@@ -139,7 +139,7 @@ export default function Navbar() {
                 {/* Logout */}
                 <button
                   onClick={handleLogout}
-                  className="p-2 text-zinc-400 hover:text-red-400 transition-colors cursor-pointer"
+                  className="p-2 text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
                 >
                   <LogOut className="h-5 w-5" />
                 </button>
@@ -147,7 +147,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="rounded-full bg-violet-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-violet-500 transition-colors shadow-lg shadow-violet-500/20"
+                className="rounded-full bg-purple-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-purple-500 transition-colors shadow-lg shadow-purple-500/20"
               >
                 Sign In
               </Link>
@@ -157,10 +157,10 @@ export default function Navbar() {
           {/* Mobile Menu button */}
           <div className="flex md:hidden items-center gap-2">
             {session && (
-              <Link href="/cart" className="relative p-2 text-zinc-300">
+              <Link href="/cart" className="relative p-2 text-slate-300">
                 <ShoppingCart className="h-5 w-5" />
                 {session.cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-violet-600 text-[9px] font-bold text-white">
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-purple-600 text-[9px] font-bold text-white">
                     {session.cartCount}
                   </span>
                 )}
@@ -168,7 +168,7 @@ export default function Navbar() {
             )}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 text-zinc-300 hover:text-white transition-colors"
+              className="p-2 text-slate-300 hover:text-white transition-colors"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -183,7 +183,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-zinc-800 bg-zinc-950 px-4 py-4 space-y-4"
+            className="md:hidden border-t border-slate-800 bg-slate-950 px-4 py-4 space-y-4"
           >
             {/* Mobile Search */}
             <form onSubmit={handleSearch} className="relative">
@@ -192,16 +192,16 @@ export default function Navbar() {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-full bg-zinc-900 border border-zinc-850 px-4 py-1.5 pl-10 text-sm text-zinc-200"
+                className="w-full rounded-full bg-slate-900 border border-slate-800 px-4 py-1.5 pl-10 text-sm text-slate-200"
               />
-              <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-zinc-500" />
+              <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-slate-500" />
             </form>
 
             <div className="flex flex-col space-y-3">
               <Link
                 href="/products"
                 onClick={() => setIsOpen(false)}
-                className="text-sm font-medium text-zinc-300 hover:text-white"
+                className="text-sm font-medium text-slate-300 hover:text-white"
               >
                 Shop Catalog
               </Link>
@@ -211,21 +211,21 @@ export default function Navbar() {
                   <Link
                     href="/profile"
                     onClick={() => setIsOpen(false)}
-                    className="text-sm font-medium text-zinc-300 hover:text-white"
+                    className="text-sm font-medium text-slate-300 hover:text-white"
                   >
                     My Profile
                   </Link>
                   <Link
                     href="/wishlist"
                     onClick={() => setIsOpen(false)}
-                    className="text-sm font-medium text-zinc-300 hover:text-white"
+                    className="text-sm font-medium text-slate-300 hover:text-white"
                   >
                     My Wishlist
                   </Link>
                   <Link
                     href="/wallet"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center space-x-2 text-sm font-medium text-zinc-300 hover:text-white"
+                    className="flex items-center space-x-2 text-sm font-medium text-slate-300 hover:text-white"
                   >
                     <Wallet className="h-4 w-4 text-emerald-500" />
                     <span>Wallet: ₹{session.wallet.toFixed(2)}</span>
@@ -233,7 +233,7 @@ export default function Navbar() {
                   <Link
                     href="/orders"
                     onClick={() => setIsOpen(false)}
-                    className="text-sm font-medium text-zinc-300 hover:text-white"
+                    className="text-sm font-medium text-slate-300 hover:text-white"
                   >
                     My Orders
                   </Link>
@@ -241,7 +241,7 @@ export default function Navbar() {
                     <Link
                       href="/admin"
                       onClick={() => setIsOpen(false)}
-                      className="text-sm font-medium text-violet-400"
+                      className="text-sm font-medium text-purple-400"
                     >
                       Admin Dashboard
                     </Link>
@@ -261,7 +261,7 @@ export default function Navbar() {
                 <Link
                   href="/login"
                   onClick={() => setIsOpen(false)}
-                  className="rounded-full bg-violet-600 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-violet-500"
+                  className="rounded-full bg-purple-600 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-purple-500"
                 >
                   Sign In
                 </Link>

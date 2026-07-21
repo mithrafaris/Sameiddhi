@@ -12,17 +12,17 @@ export default function Footer() {
   if (isAdminRoute) return null;
 
   return (
-    <footer className="w-full border-t border-zinc-900 bg-zinc-950 py-12 text-zinc-400 mt-auto">
+    <footer className="w-full border-t border-slate-900 bg-slate-950 py-12 text-slate-400 mt-auto">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="relative h-10 w-10 flex items-center justify-center rounded-xl overflow-hidden shadow-md shadow-violet-900/20">
+              <div className="relative h-10 w-10 flex items-center justify-center rounded-xl overflow-hidden shadow-md shadow-purple-900/20">
                 <Image src="/logo.png" alt="Samriddhi Logo" fill className="object-cover" />
               </div>
               <span className="text-lg font-bold text-white tracking-tight">Samriddhi</span>
             </Link>
-            <p className="text-sm text-zinc-500 max-w-xs">
+            <p className="text-sm text-slate-500 max-w-xs">
               Samriddhi is a next-generation premium e-commerce platform offering state-of-the-art products and seamless checkout experiences.
             </p>
           </div>
@@ -69,11 +69,11 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div className="border-t border-zinc-900 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-zinc-500 gap-4">
+        <div className="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 gap-4">
           <p>© {new Date().getFullYear()} Samriddhi E-Commerce. All rights reserved.</p>
           <div className="flex space-x-6">
-            <a href="#" className="hover:text-zinc-400">Privacy Policy</a>
-            <a href="#" className="hover:text-zinc-400">Terms of Service</a>
+            <a href="#" className="hover:text-slate-400">Privacy Policy</a>
+            <a href="#" className="hover:text-slate-400">Terms of Service</a>
           </div>
         </div>
       </div>

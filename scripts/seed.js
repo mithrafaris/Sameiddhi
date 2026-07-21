@@ -21,6 +21,7 @@ const productSchema = new mongoose.Schema({
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
   discount: { type: String },
   isList: { type: Boolean, default: true },
+  rating: { type: Number, default: 4.5 }
 });
 
 const bannerSchema = new mongoose.Schema({
@@ -64,32 +65,29 @@ async function seed() {
         isadmin: true
       });
       console.log('Admin user created (admin@samriddhi.com / Admin@123).');
-    } else {
-      console.log('Admin user already exists.');
     }
 
     console.log('Inserting Categories...');
     const categoriesData = [
       {
         categoryName: 'electronics',
-        image: 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?q=80&w=600&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=600&auto=format&fit=crop',
         description: 'Next-gen gadgets, smartphones, wearables, and computing devices.',
       },
       {
         categoryName: 'apparel',
-        image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=600&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&auto=format&fit=crop',
         description: 'Premium clothing, shoes, and luxury streetwear.',
       },
       {
         categoryName: 'accessories',
-        image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1542219550-37153d387c27?q=80&w=600&auto=format&fit=crop',
         description: 'Elegant watches, minimalist wallets, and everyday carry essentials.',
       }
     ];
 
     const insertedCats = await Category.insertMany(categoriesData);
-    console.log(`Seeded ${insertedCats.length} categories.`);
-
+    
     const catElectronics = insertedCats.find(c => c.categoryName === 'electronics');
     const catApparel = insertedCats.find(c => c.categoryName === 'apparel');
     const catAccessories = insertedCats.find(c => c.categoryName === 'accessories');
@@ -100,52 +98,86 @@ async function seed() {
         productName: 'AeroBuds Pro',
         price: 8999,
         stock: 45,
-        description: 'Ultra active noise-cancelling wireless earbuds with spatial audio tracking, custom H2 acoustic drivers, and 30-hour battery life.',
+        description: 'Ultra active noise-cancelling wireless earbuds with spatial audio tracking.',
         images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=600&auto=format&fit=crop'],
         category: catElectronics._id,
         discount: '10%',
+        rating: 4.8
       },
       {
         productName: 'Chronos Smartwatch',
         price: 19999,
         stock: 20,
-        description: 'Titanium chassis smartwatch featuring real-time health diagnostics, custom ambient-lit widgets, and offline GPS mapping.',
+        description: 'Titanium chassis smartwatch featuring real-time health diagnostics.',
         images: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop'],
         category: catElectronics._id,
         discount: '15%',
+        rating: 4.9
+      },
+      {
+        productName: 'Quantum Laptop X',
+        price: 145000,
+        stock: 10,
+        description: 'High performance ultra-book with m3 chip and OLED display.',
+        images: ['https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=600&auto=format&fit=crop'],
+        category: catElectronics._id,
+        discount: '5%',
+        rating: 4.7
       },
       {
         productName: 'Gravity Hoody',
         price: 4999,
         stock: 35,
-        description: 'Heavyweight organic cotton hoodie featuring ergonomic stitch patterns and drop-shoulder silhouettes in space grey.',
+        description: 'Heavyweight organic cotton hoodie in space grey.',
         images: ['https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=600&auto=format&fit=crop'],
         category: catApparel._id,
         discount: '5%',
-      },
-      {
-        productName: 'Sleek Leather Wallet',
-        price: 2499,
-        stock: 120,
-        description: 'Full-grain veg-tan leather wallet featuring RFID blocking shields and expandable card slots.',
-        images: ['https://images.unsplash.com/photo-1627124765135-56c33fc36bfa?q=80&w=600&auto=format&fit=crop'],
-        category: catAccessories._id,
-        discount: '20%',
+        rating: 4.6
       },
       {
         productName: 'Neon Trainer V2',
         price: 12499,
         stock: 15,
-        description: 'Futuristic responsive running sneakers with energy-returning foam soles and glow-in-the-dark structural mesh.',
+        description: 'Futuristic responsive running sneakers with energy-returning foam.',
         images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600&auto=format&fit=crop'],
         category: catApparel._id,
         discount: '0%',
+        rating: 4.5
+      },
+      {
+        productName: 'Silk Midnight Dress',
+        price: 8599,
+        stock: 25,
+        description: 'Elegant evening wear designed for luxury and comfort.',
+        images: ['https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=600&auto=format&fit=crop'],
+        category: catApparel._id,
+        discount: '20%',
+        rating: 4.9
+      },
+      {
+        productName: 'Sleek Leather Wallet',
+        price: 2499,
+        stock: 120,
+        description: 'Full-grain veg-tan leather wallet featuring RFID blocking shields.',
+        images: ['https://images.unsplash.com/photo-1627124765135-56c33fc36bfa?q=80&w=600&auto=format&fit=crop'],
+        category: catAccessories._id,
+        discount: '20%',
+        rating: 4.3
+      },
+      {
+        productName: 'Aviator Sunglasses',
+        price: 3499,
+        stock: 50,
+        description: 'Classic aviator styling with polarized UV-blocking lenses.',
+        images: ['https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=600&auto=format&fit=crop'],
+        category: catAccessories._id,
+        discount: '0%',
+        rating: 4.7
       }
     ];
 
     const insertedProds = await Products.insertMany(productsData);
-    console.log(`Seeded ${insertedProds.length} products.`);
-
+    
     // Map products back into categories
     catElectronics.products = insertedProds.filter(p => p.category.toString() === catElectronics._id.toString()).map(p => p._id);
     await catElectronics.save();
@@ -160,20 +192,19 @@ async function seed() {
     const bannersData = [
       {
         bannerName: 'summer luxury launch',
-        image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200&auto=format&fit=crop',
-        title: 'Future Tech & Luxury Styles',
-        subtitle: 'Elevate your daily flow with Samriddhi collection. Get up to 30% off and pre-funded welcome wallets.'
+        image: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1200&auto=format&fit=crop',
+        title: 'Premium Collections & Luxury Wear',
+        subtitle: 'Elevate your daily flow with the Samriddhi collection. Exclusive designs for the modern lifestyle.'
       },
       {
         bannerName: 'wearables campaign',
-        image: 'https://images.unsplash.com/photo-1507646227500-4d389b0012be?q=80&w=1200&auto=format&fit=crop',
-        title: 'Precision Smart Wearables',
-        subtitle: 'Track metrics, control media, and navigate effortlessly. Available in Chronos Series.'
+        image: 'https://images.unsplash.com/photo-1491472253230-a044054ca35f?q=80&w=1200&auto=format&fit=crop',
+        title: 'Precision Smart Technologies',
+        subtitle: 'Next generation wearables and tech essentials. Track metrics, control media, and navigate effortlessly.'
       }
     ];
 
-    const insertedBanners = await Banner.insertMany(bannersData);
-    console.log(`Seeded ${insertedBanners.length} banners.`);
+    await Banner.insertMany(bannersData);
 
     console.log('Seed completed successfully!');
     process.exit(0);
